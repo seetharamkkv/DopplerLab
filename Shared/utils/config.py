@@ -3,7 +3,7 @@ import os
 
 def load_config(config_path):
     if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Config file not found: {config_path}")
+        return {}
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
@@ -14,7 +14,7 @@ def get_default_config():
         "val_ratio": 0.1,
         "batch_size": 16,
         "lr": 3e-4,
-        "epochs": 300,
+        "epochs": 500,
         "save_every": 20,
         "val_every": 20,
         "seed": 42

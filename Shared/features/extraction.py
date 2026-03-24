@@ -1,3 +1,4 @@
+# Repurposed from src/features/extraction.py
 import os
 import numpy as np
 import librosa
@@ -13,6 +14,7 @@ N_BINS          = 84
 FMIN            = librosa.note_to_hz("C2")
 MAX_T           = 432
 NYQUIST         = SR / 2.0
+MAX_SPEED_MPS   = 50.0
 
 CQT_FREQS = librosa.cqt_frequencies(
     n_bins=N_BINS, fmin=FMIN, bins_per_octave=BINS_PER_OCTAVE

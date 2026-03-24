@@ -2,8 +2,8 @@ import torch
 import os
 import pandas as pd
 from torch.utils.data import DataLoader
-from src.data.dataset import ID_TO_PATH
-from src.features.extraction import MAX_SPEED_MPS
+from Shared.data.dataset import ID_TO_PATH
+from Shared.features.extraction import MAX_SPEED_MPS
 
 def run_inference(model_name, model, test_files, DatasetCls, device, max_dist):
     test_ds = DatasetCls(test_files, augment=False)

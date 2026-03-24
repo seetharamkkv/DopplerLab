@@ -24,8 +24,8 @@ DopplerLab is a modularised port of the DopplerLab notebook benchmarks (CNN and 
 
 | Version | Distance Range | `MAX_DIST_M` | Folder |
 |---|---|---|---|
-| `v1` | 5 – 120 m | 120.0 | `Datasets/neurips_v1/audio_clips` |
-| `v2` | 5 – 1000 m | 1000.0 | `Datasets/neurips_v2/audio_clips` |
+| `v1` | 5 – 120 m | 120.0 | `data/Datasets/neurips_v1/audio_clips` |
+| `v2` | 5 – 1000 m | 1000.0 | `data/Datasets/neurips_v2/audio_clips` |
 
 Both versions use the same label format: `{vehicle}_{path}_{speed}mps_{dist}m_{id}.wav`  
 7 vehicle types · 3 trajectory classes · 1,000 clips · 800 / 100 / 100 train/val/test split (class-balanced).
@@ -67,21 +67,31 @@ All four models share the same multi-task head structure:
 
 ```
 DopplerLab/
-├── src/
-│   ├── data/            # Dataset loading and train/val/test split logic
-│   ├── features/        # CQT extraction and 7-channel 1D trajectory features
-│   ├── models/          # CNN and Attention architectures + model registry
-│   ├── training/        # Multi-task loss, checkpoint logic, training loop
-│   └── utils/           # Path management, config, plotting, inference helpers
-├── configs/             # YAML configurations per benchmark and dataset version
-│   ├── v1_cnn.yaml
-│   ├── v2_cnn.yaml
-│   ├── v1_attention.yaml
-│   └── v2_attention.yaml
-├── results/             # Output CSVs, figures, and summary comparisons
-├── run.py               # Central CLI entry point
+├── Shared/              # Core modules: data, features, losses, evaluation, utils
+├── models/              # Architecture definitions (cnn, self_attn)
+├── data/                # Dataset root -- place neurips_v1 / neurips_v2 here
+├── doppler_models/      # Model checkpoints (download from Drive)
+├── results/             # Output CSVs and figures (download from Drive, optional)
+├── run.py               # Multi-mode CLI entry point
 └── requirements.txt
 ```
+
+Checkpoint path convention: `doppler_models/{version}_{benchmark}/{family}_model_{dim}/{name}.pt`
+
+**`models/` vs `doppler_models/`**
+
+| | `models/` | `doppler_models/` |
+|---|---|---|
+| Contains | Python source code (architecture definitions) | Trained weights (`.pt` files) |
+| Purpose | Defines how the model is built | Stores what the model has learned |
+| Tracked by Git | Yes (small text files) | No (large binaries, listed in `.gitignore`) |
+| Source | This repository | Download from Google Drive |
+
+`doppler_models/` mirrors the export structure from Google Colab exactly, so moving checkpoints from Colab to local is a direct copy-paste.
+
+**`models/` vs `doppler_models/`**
+
+These two folders serve
 
 ---
 
@@ -93,46 +103,54 @@ DopplerLab/
 pip install -r requirements.txt
 ```
 
-**2. Configure data paths**
+**2. Download model artifacts**
 
-Copy the example env file and set `DATA_ROOT` to the directory containing your `neurips_v1` or `neurips_v2` folder:
+Download the `doppler_models/` folder from Drive and place it in the project root. Optionally download `results/` as well.
 
-```bash
-cp .env.example .env
-```
+**3. Configure data paths**
+
+Ensure your dataset is placed at `data/Datasets/neurips_vx/audio_clips/` and your `.env` contains:
 
 ```dotenv
-# .env
-DATA_ROOT=/path/to/your/Datasets
-```
-
-**3. Install the local package** *(optional but recommended for imports)*
-
-```bash
-pip install -e .
+DATA_PATH=./data
+MODEL_PATH=./doppler_models
+RESULTS_PATH=./results
 ```
 
 ---
 
 ## Usage
 
-All training and evaluation runs through `run.py` with a config file:
+All training, evaluation, and inference runs through `run.py`.
 
-### Training
+### Evaluate Pre-trained Models (no training required)
+
+Download checkpoints from Drive and evaluate immediately:
 
 ```bash
-# CNN benchmark, v2 dataset, 2D model
-python run.py --mode train --config configs/v2_cnn.yaml --model-name cqt_2d --dataset-v v2
+# CNN benchmark
+python run.py --eval --model cnn_1d --version v2
 
-# Attention benchmark, v2 dataset, 1D model
-python run.py --mode train --config configs/v2_attention.yaml --model-name attn_1d --dataset-v v2
+# Attention benchmark
+python run.py --eval --model attn_2d --version v2
 ```
 
-### Evaluation
+### Full Pipeline (train and evaluate)
 
 ```bash
-# Evaluate and generate all figures
-python run.py --mode evaluate --config configs/v2_attention.yaml --model-name attn_2d --dataset-v v2
+python run.py --mode all --model attn_1d --version v2
+```
+
+### Training Only
+
+```bash
+python run.py --mode train --model cnn_1d --version v2
+```
+
+### Single File Inference
+
+```bash
+python run.py --infer sample.wav --model attn_2d --version v2
 ```
 
 Evaluation outputs for each model:
@@ -184,25 +202,6 @@ Checkpoints overwrite a single file per model; no storage bloat.
 | Dist R² | Coefficient of determination for distance | Attention only |
 
 R² is included in the Attention benchmark to give a normalised measure of explained variance, which is useful when comparing v1 (120 m) and v2 (1000 m) results on the same scale.
-
----
-
-## Configs
-
-Each YAML config file controls model selection, dataset version, loss weights, and output paths. Example (`configs/v2_attention.yaml`):
-
-```yaml
-dataset_version: v2
-max_dist_m: 1000.0
-model: attn_2d
-batch_size: 16
-epochs: 500
-lr: 3e-4
-loss_weights:
-  path: 1.0
-  speed: 2.5
-  dist: 1.5
-```
 
 ---
 
