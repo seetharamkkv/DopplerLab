@@ -4,7 +4,7 @@ A modular, reproducible machine learning system for multi-task Doppler audio ana
 
 > **Looking for the dataset simulator?**  
 > Audio clips are generated using **DopplerNet**, a Flask-based Doppler audio simulator with physically accurate wave modelling, multi-path trajectory support, and a full web UI.  
-> → [github.com/rohitharumugams/DopplerNet](https://github.com/rohitharumugams/DopplerNet)
+> -> [github.com/rohitharumugams/DopplerNet](https://github.com/rohitharumugams/DopplerNet)
 
 ---
 
@@ -55,10 +55,10 @@ The Attention benchmark is a direct successor to the CNN benchmark. Feature extr
 All four models share the same multi-task head structure:
 
 ```
-→ Shared head: LayerNorm → Linear → ReLU → Dropout(0.2)
-→ Path head:   Linear(128→64) → ReLU → Linear(64→3)    [cross-entropy]
-→ Speed head:  Linear(128→64) → ReLU → Linear(64→1)    [Huber]
-→ Dist head:   Linear(128→64) → ReLU → Linear(64→1)    [Huber, log-normalised]
+Shared head: LayerNorm -> Linear -> ReLU -> Dropout(0.2)
+Path head:   Linear(128 -> 64) -> ReLU -> Linear(64 -> 3)    [cross-entropy]
+Speed head:  Linear(128 -> 64) -> ReLU -> Linear(64 -> 1)    [Huber]
+Dist head:   Linear(128 -> 64) -> ReLU -> Linear(64 -> 1)    [Huber, log-normalised]
 ```
 
 ---
@@ -209,7 +209,7 @@ R² is included in the Attention benchmark to give a normalised measure of expla
 
 The datasets used by this project are generated with **DopplerNet**, a Flask-based Doppler audio simulator that produces physically accurate vehicle pass-by audio clips across configurable trajectories (straight-line, parabolic, Bezier), speeds, and distances.
 
-→ **Simulator repo:** [github.com/rohitharumugams/DopplerNet](https://github.com/rohitharumugams/DopplerNet)
+-> **Simulator repo:** [github.com/rohitharumugams/DopplerNet](https://github.com/rohitharumugams/DopplerNet)
 
 Clip filenames encode all ground-truth labels: `{vehicle}_{path}_{speed}mps_{dist}m_{id}.wav`, which DopplerLab parses directly during dataset loading; no separate annotation files needed.
 

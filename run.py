@@ -51,7 +51,7 @@ def main():
     if do_eval:
         print(f"--- Evaluating {args.model} ({args.version}) ---")
         if not os.path.exists(ckpt_path):
-            print(f"🚨 Checkpoint MISSING: {ckpt_path}")
+            print(f"Checkpoint MISSING: {ckpt_path}")
             print("Please download the 'doppler_models' folder from Drive and place it in project root.")
             return
         

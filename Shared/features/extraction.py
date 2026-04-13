@@ -1,10 +1,9 @@
-# Repurposed from src/features/extraction.py
 import os
 import numpy as np
 import librosa
 import scipy.signal
 
-# ── Audio / CQT constants ─────────────────────────────────────────────────────
+# --- Audio / CQT constants -----------------------------------------------------
 SR              = 22050
 DURATION_S      = 10
 N_SAMPLES       = SR * DURATION_S

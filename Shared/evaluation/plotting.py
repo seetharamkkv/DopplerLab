@@ -13,7 +13,7 @@ def plot_results(df, model_names, colors, fig_dir, speed_lim, dist_lim,
     # 1. Confusion matrices
     fig, axes = plt.subplots(1, len(model_names), figsize=(6 * len(model_names), 5))
     if len(model_names) == 1: axes = [axes]
-    fig.suptitle("Path Classification — Confusion Matrices", fontsize=13)
+    fig.suptitle("Path Classification - Confusion Matrices", fontsize=13)
     for ax, mname in zip(axes, model_names):
         sub = df[df["model"] == mname]
         conf = np.zeros((3, 3), dtype=int)
