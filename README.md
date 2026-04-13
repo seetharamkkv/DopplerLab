@@ -218,7 +218,7 @@ Clip filenames encode all ground-truth labels: `{vehicle}_{path}_{speed}mps_{dis
 ## Authors
 
 **Seetharam Killivalavan & Rohith Arumugam Suresh**  
-School of Computer Science
+School of Computer Science <br>
 *Carnegie Mellon University*
 
 ---
