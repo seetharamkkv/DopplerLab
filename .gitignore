@@ -1,0 +1,18 @@
+# Experiments and artifacts (never commit)
+experiments/
+outputs/
+*.msgpack
+setup_cache/
+__pycache__/
+.venv/
+venv/
+*.pyc
+.ipynb_checkpoints/
+
+# Local data symlinks / caches
+data/batch_outputs/
+data/
+ref_docs/
+# OS
+.DS_Store
+Thumbs.db
