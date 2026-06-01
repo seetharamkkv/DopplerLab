@@ -1,0 +1,10 @@
+{
+  "checkpoint_file": "/home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn/checkpoints/checkpoint_latest.msgpack",
+  "epoch": 5,
+  "epoch_display": 6,
+  "resume_batch": 0,
+  "saved_at_epoch": 5,
+  "global_step": 109375,
+  "timestamp": 1780312458.4556253,
+  "message": "Resume at epoch 6 (checkpoint saved after epoch 5)"
+}

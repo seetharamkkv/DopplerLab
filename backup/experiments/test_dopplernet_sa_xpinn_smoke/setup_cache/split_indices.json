@@ -1,0 +1,76 @@
+{
+  "version": "speed_stratified_v1",
+  "fingerprint": "87d880c94c928d71",
+  "seed": 42,
+  "speed_bin_edges": [
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50
+  ],
+  "train_frac": 0.7,
+  "val_frac": 0.15,
+  "test_frac": 0.15,
+  "train_clip_ids": [
+    "sample_0000040",
+    "sample_0000230",
+    "sample_0000403"
+  ],
+  "val_clip_ids": [],
+  "test_clip_ids": [],
+  "speed_bin_table": [
+    {
+      "Speed Bin": "10-15",
+      "Train Count": 1,
+      "Val Count": 0,
+      "Test Count": 0
+    },
+    {
+      "Speed Bin": "15-20",
+      "Train Count": 0,
+      "Val Count": 0,
+      "Test Count": 0
+    },
+    {
+      "Speed Bin": "20-25",
+      "Train Count": 0,
+      "Val Count": 0,
+      "Test Count": 0
+    },
+    {
+      "Speed Bin": "25-30",
+      "Train Count": 1,
+      "Val Count": 0,
+      "Test Count": 0
+    },
+    {
+      "Speed Bin": "30-35",
+      "Train Count": 0,
+      "Val Count": 0,
+      "Test Count": 0
+    },
+    {
+      "Speed Bin": "35-40",
+      "Train Count": 1,
+      "Val Count": 0,
+      "Test Count": 0
+    },
+    {
+      "Speed Bin": "40-45",
+      "Train Count": 0,
+      "Val Count": 0,
+      "Test Count": 0
+    },
+    {
+      "Speed Bin": "45-50",
+      "Train Count": 0,
+      "Val Count": 0,
+      "Test Count": 0
+    }
+  ]
+}

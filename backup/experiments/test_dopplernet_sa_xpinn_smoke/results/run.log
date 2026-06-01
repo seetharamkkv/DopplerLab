@@ -1,0 +1,24 @@
+[2026-05-31 14:07:53] [INFO] Experiment initialized: /home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn_smoke
+[2026-05-31 14:07:53] [INFO] Results layout: dataset=dataset/ training=training/ evaluation=evaluation/ metrics=metrics/
+[2026-05-31 14:08:27] [INFO] Experiment initialized: /home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn_smoke
+[2026-05-31 14:08:27] [INFO] Results layout: dataset=dataset/ training=training/ evaluation=evaluation/ metrics=metrics/
+[2026-05-31 14:10:04] [INFO] Dataset batch=B1_to_B6_1Mil clips=1000000
+[2026-05-31 14:10:04] [INFO] Checkpoint status printed
+[2026-05-31 14:10:05] [INFO] Saved figure -> /home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn_smoke/results/dataset/speed_histograms_per_split.png
+[2026-05-31 14:10:05] [INFO] Saved figure -> /home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn_smoke/results/dataset/speed_histogram_overlay.png
+[2026-05-31 14:10:06] [INFO] Dataset split histograms -> /home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn_smoke/results/dataset
+[2026-05-31 14:10:06] [INFO] Split leakage check PASSED — 3 clips, no overlap
+[2026-05-31 14:16:26] [INFO] Experiment initialized: /home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn_smoke
+[2026-05-31 14:16:26] [INFO] Results layout: dataset=dataset/ training=training/ evaluation=evaluation/ metrics=metrics/
+[2026-05-31 14:16:34] [INFO] Dataset batch=B1_to_B6_1Mil clips=1000000
+[2026-05-31 14:16:34] [INFO] Checkpoint status printed
+[2026-05-31 14:16:35] [INFO] Saved figure -> /home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn_smoke/results/dataset/speed_histograms_per_split.png
+[2026-05-31 14:16:35] [INFO] Saved figure -> /home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn_smoke/results/dataset/speed_histogram_overlay.png
+[2026-05-31 14:16:35] [INFO] Dataset split histograms -> /home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn_smoke/results/dataset
+[2026-05-31 14:16:35] [INFO] Split leakage check PASSED — 3 clips, no overlap
+[2026-05-31 14:18:09] [INFO] Checkpoint saved after epoch 1 -> /home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn_smoke/checkpoints/checkpoint_latest.msgpack
+[2026-05-31 14:18:09] [INFO] Training complete: 1 epochs, best={'val_mae': inf}
+[2026-05-31 14:18:09] [INFO] Saved per-epoch .npy metrics -> /home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn_smoke/results/training
+[2026-05-31 14:18:09] [INFO] Saved figure -> /home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn_smoke/results/training/training_curves.png
+[2026-05-31 14:18:10] [INFO] Evaluation report -> /home/skilliva/DopplerLab/experiments/test_dopplernet_sa_xpinn_smoke/results/metrics/eval_report_latest.json
+[2026-05-31 14:18:10] [INFO] Evaluation artifacts saved

@@ -1,0 +1,6 @@
+DopplerNet-SA+XPINN B1 (JAX) Evaluation Summary
+========================================
+Generated: 2026-05-31 14:18:10
+Input mode: doppler_attn_2d
+
+Best val MAE: {'val_mae': inf}
