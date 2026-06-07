@@ -1,0 +1,59 @@
+# --- Generated / runtime outputs ---
+outputs/
+cache/
+
+# --- Model weights, galleries, HF/CLAP caches (large; download locally) ---
+models/
+
+# --- Input audio (add clips locally; do not commit recordings) ---
+data/*
+!data/.gitkeep
+
+# --- Vendored upstream code (clone per download_instructions.md) ---
+third_party/
+
+# --- Hugging Face / download temp files ---
+**/*.incomplete
+**/*.lock
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- LaTeX (keep .tex; ignore build artifacts) ---
+*.aux
+*.log
+*.out
+*.toc
+*.nav
+*.snm
+*.vrb
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+
+# --- Secrets / local env ---
+.env
+.env.*
+*.pem
