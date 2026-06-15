@@ -16,3 +16,4 @@ ref_docs/
 # OS
 .DS_Store
 Thumbs.db
+backup/experiments/test_dopplernet_sa_xpinn/setup_cache/*.pkl
