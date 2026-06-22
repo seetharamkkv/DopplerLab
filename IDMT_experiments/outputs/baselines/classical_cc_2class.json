@@ -1,0 +1,58 @@
+{
+  "model": "logistic_regression",
+  "feature_type": "cc",
+  "n_classes": 2,
+  "metrics": {
+    "accuracy": 0.9658246656760773,
+    "macro_f1": 0.9656194125159643,
+    "per_class_f1": {
+      "L2R": 0.9629629629629629,
+      "R2L": 0.9682758620689655
+    },
+    "confusion_matrix": [
+      [
+        598,
+        34
+      ],
+      [
+        12,
+        702
+      ]
+    ],
+    "confusion_labels": [
+      "L2R",
+      "R2L"
+    ],
+    "n_samples": 1346
+  },
+  "channel_swap": {
+    "flip_consistency": 0.9301634472511144,
+    "n_checked": 1346,
+    "n_correct_flips": 1252
+  },
+  "split_audit": {
+    "ok": true,
+    "n_train_events": 2744,
+    "n_valid_events": 323,
+    "n_test_events": 1346,
+    "train_valid_event_overlap": [],
+    "train_test_event_overlap": [],
+    "valid_test_event_overlap": []
+  },
+  "split_meta": {
+    "split_name": "eusipco",
+    "mic_filter": "SE",
+    "channel_filter": "CH34",
+    "val_fraction": 0.1,
+    "seed": 42,
+    "audit": {
+      "ok": true,
+      "n_train_events": 5153,
+      "n_valid_events": 573,
+      "n_test_events": 2758,
+      "train_valid_event_overlap": [],
+      "train_test_event_overlap": [],
+      "valid_test_event_overlap": []
+    }
+  }
+}

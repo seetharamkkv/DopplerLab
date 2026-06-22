@@ -1,0 +1,10 @@
+{
+  "checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\direction\\loc_loo_cc\\fold_Langewiesener-Strasse.pt",
+  "best_epoch": 19,
+  "best_val_acc": 0.9949622166246851,
+  "best_val_loss": 0.01845771516673267,
+  "final_epoch": 20,
+  "preempt": true,
+  "epochs_configured": 20,
+  "fold_complete": true
+}

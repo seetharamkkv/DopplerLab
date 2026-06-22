@@ -1,0 +1,10 @@
+{
+  "checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\vehicle\\vehicle_cc_eusipco\\best.pt",
+  "best_epoch": 7,
+  "best_val_acc": 0.9267015706806283,
+  "best_val_loss": 0.22313940918280017,
+  "final_epoch": 10,
+  "preempt": true,
+  "epochs_configured": 10,
+  "fold_complete": true
+}

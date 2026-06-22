@@ -1,0 +1,21 @@
+{
+  "split_name": "weather_holdout",
+  "train_weather": "D",
+  "test_weather": "W",
+  "mic_filter": "SE",
+  "channel_filter": "CH34",
+  "val_fraction": 0.1,
+  "seed": 42,
+  "audit": {
+    "ok": true,
+    "n_train_events": 6941,
+    "n_valid_events": 771,
+    "n_test_events": 830,
+    "train_valid_event_overlap": [],
+    "train_test_event_overlap": [],
+    "valid_test_event_overlap": []
+  },
+  "n_dry_clips": 7712,
+  "n_wet_clips": 830,
+  "n_test_clips": 830
+}

@@ -1,0 +1,17 @@
+========================================================================
+IDMT VEHICLE — EVALUATION
+========================================================================
+
+  Checkpoint   : D:\Antigravity\DopplerLab\IDMT_experiments\checkpoints\vehicle\vehicle_cc_eusipco\best.pt
+  Feature      : cc
+  Classes      : 5
+
+  Accuracy     : 0.9307
+  Macro F1     : 0.3846
+
+  Per-class F1:
+    bus: 0.0000
+    car: 0.9245
+    motorcycle: 0.0000
+    truck: 0.0000
+    none: 0.9986

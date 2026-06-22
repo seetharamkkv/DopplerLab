@@ -1,0 +1,10 @@
+{
+  "checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\direction\\sanity_cc\\best.pt",
+  "best_epoch": 10,
+  "best_val_acc": 0.987783595113438,
+  "best_val_loss": 0.05892436618321679,
+  "final_epoch": 10,
+  "preempt": true,
+  "epochs_configured": 10,
+  "fold_complete": true
+}

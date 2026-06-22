@@ -1,0 +1,89 @@
+{
+  "model": "logistic_regression",
+  "task": "vehicle",
+  "feature_type": "cc",
+  "n_classes": 5,
+  "split_name": "eusipco",
+  "metrics": {
+    "accuracy": 0.8480783176214648,
+    "macro_f1": 0.4208361236717201,
+    "per_class_f1": {
+      "bus": 0.0,
+      "car": 0.8081093823668081,
+      "motorcycle": 0.0,
+      "truck": 0.3053173241852487,
+      "none": 0.9907539118065434
+    },
+    "confusion_matrix": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        857,
+        0,
+        295,
+        5
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        98,
+        0,
+        89,
+        2
+      ],
+      [
+        0,
+        9,
+        0,
+        10,
+        1393
+      ]
+    ],
+    "confusion_labels": [
+      "bus",
+      "car",
+      "motorcycle",
+      "truck",
+      "none"
+    ],
+    "n_samples": 2758
+  },
+  "channel_swap": null,
+  "split_audit": {
+    "ok": true,
+    "n_train_events": 5153,
+    "n_valid_events": 573,
+    "n_test_events": 2758,
+    "train_valid_event_overlap": [],
+    "train_test_event_overlap": [],
+    "valid_test_event_overlap": []
+  },
+  "split_meta": {
+    "split_name": "eusipco",
+    "mic_filter": "SE",
+    "channel_filter": "CH34",
+    "val_fraction": 0.1,
+    "seed": 42,
+    "audit": {
+      "ok": true,
+      "n_train_events": 5153,
+      "n_valid_events": 573,
+      "n_test_events": 2758,
+      "train_valid_event_overlap": [],
+      "train_test_event_overlap": [],
+      "valid_test_event_overlap": []
+    }
+  }
+}

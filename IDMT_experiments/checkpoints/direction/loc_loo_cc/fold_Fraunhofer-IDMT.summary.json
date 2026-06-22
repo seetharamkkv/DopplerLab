@@ -1,0 +1,10 @@
+{
+  "checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\direction\\loc_loo_cc\\fold_Fraunhofer-IDMT.pt",
+  "best_epoch": 5,
+  "best_val_acc": 0.9918256130790191,
+  "best_val_loss": 0.08818028504079532,
+  "final_epoch": 15,
+  "preempt": true,
+  "epochs_configured": 20,
+  "fold_complete": true
+}

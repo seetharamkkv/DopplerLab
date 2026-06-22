@@ -1,0 +1,12 @@
+# IDMT-Traffic raw audio + annotations on disk (~10+ GB) — download from Zenodo locally
+IDMT_Traffic/
+
+# CNN checkpoints (weights only); configs/history/summaries under checkpoints/ are tracked
+checkpoints/**/*.pt
+
+# Python packaging / caches
+*.egg-info/
+__pycache__/
+.ipynb_checkpoints/
+.venv/
+venv/

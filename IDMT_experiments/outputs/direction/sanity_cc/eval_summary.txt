@@ -1,0 +1,17 @@
+========================================================================
+IDMT DIRECTION — EVALUATION
+========================================================================
+
+  Checkpoint   : D:\Antigravity\DopplerLab\IDMT_experiments\checkpoints\direction\sanity_cc\best.pt
+  Feature      : cc
+  Classes      : 3
+
+  Accuracy     : 0.9967
+  Macro F1     : 0.9965
+
+  Per-class F1:
+    L2R: 0.9968
+    R2L: 0.9951
+    no_vehicle: 0.9975
+
+  Channel-swap flip consistency : 0.9993 (1340/1341)

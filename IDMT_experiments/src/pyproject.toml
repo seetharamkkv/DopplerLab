@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "idmt-experiments"
+version = "0.1.0"
+description = "IDMT-Traffic direction-of-travel experiments (NeurIPS Benchmark 2)"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["idmt_experiments*"]

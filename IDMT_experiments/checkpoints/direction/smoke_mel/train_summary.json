@@ -1,0 +1,23 @@
+{
+  "checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\direction\\smoke_mel\\best.pt",
+  "best_epoch": 2,
+  "best_val_acc": 0.7661431064572426,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.8335682716634538,
+      "train_acc": 0.7034737046380749,
+      "val_loss": 1.1149489879608154,
+      "val_acc": 0.29668411867364747,
+      "val_macro_f1": 0.1645596082961985
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.438400568049631,
+      "train_acc": 0.7948767708131186,
+      "val_loss": 0.47143808669514126,
+      "val_acc": 0.7661431064572426,
+      "val_macro_f1": 0.6936846267954871
+    }
+  ]
+}

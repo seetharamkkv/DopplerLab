@@ -1,0 +1,14 @@
+{
+  "n_clips": 8542,
+  "n_events": 8542,
+  "n_background": 4071,
+  "locations": [
+    "Fraunhofer-IDMT",
+    "Langewiesener-Strasse",
+    "Schleusinger-Allee"
+  ],
+  "travel_directions": [
+    "L2R",
+    "R2L"
+  ]
+}

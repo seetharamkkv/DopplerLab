@@ -1,0 +1,17 @@
+========================================================================
+IDMT DIRECTION — EVALUATION
+========================================================================
+
+  Checkpoint   : D:\Antigravity\DopplerLab\IDMT_experiments\checkpoints\direction\direction_cc_weather\best.pt
+  Feature      : cc
+  Classes      : 3
+
+  Accuracy     : 0.9952
+  Macro F1     : 0.6639
+
+  Per-class F1:
+    L2R: 0.9955
+    R2L: 0.9961
+    no_vehicle: 0.0000
+
+  Channel-swap flip consistency : 0.9988 (828/829)

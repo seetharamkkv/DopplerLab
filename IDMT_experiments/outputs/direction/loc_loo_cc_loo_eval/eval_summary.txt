@@ -1,0 +1,15 @@
+========================================================================
+IDMT DIRECTION — EVALUATION
+========================================================================
+
+  Checkpoint   : D:\Antigravity\DopplerLab\IDMT_experiments\checkpoints\direction\loc_loo_cc
+  Feature      : cc
+  Classes      : 3
+
+  Accuracy     : 0.9742
+  Macro F1     : 0.9733
+
+  Per-class F1:
+    L2R: 0.9802
+    R2L: 0.9607
+    no_vehicle: 0.9790

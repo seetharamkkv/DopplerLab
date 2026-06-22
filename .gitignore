@@ -1,6 +1,9 @@
-# Experiments and artifacts (never commit)
+# Experiments and artifacts
 experiments/
 outputs/
+!IDMT_experiments/outputs/
+!IDMT_experiments/outputs/**
+
 *.msgpack
 setup_cache/
 __pycache__/
@@ -12,7 +15,11 @@ venv/
 # Local data symlinks / caches
 data/batch_outputs/
 data/
+
+# Reference docs and PDFs (local only, not in repo)
 ref_docs/
+*.pdf
+
 # OS
 .DS_Store
 Thumbs.db

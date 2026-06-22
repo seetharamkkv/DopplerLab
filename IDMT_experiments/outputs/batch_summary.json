@@ -1,0 +1,27 @@
+{
+  "finished_at": "2026-06-21T13:31:21.896672+00:00",
+  "total_elapsed_s": 14752.6,
+  "jobs": [
+    {
+      "name": "classical_vehicle_cc",
+      "status": "ok",
+      "return_code": 0,
+      "elapsed_s": 3809.1,
+      "started_at": "2026-06-21T09:25:29.319550+00:00"
+    },
+    {
+      "name": "vehicle_cc_eusipco",
+      "status": "ok",
+      "return_code": 0,
+      "elapsed_s": 5207.5,
+      "started_at": "2026-06-21T10:28:58.418375+00:00"
+    },
+    {
+      "name": "direction_cc_weather",
+      "status": "ok",
+      "return_code": 0,
+      "elapsed_s": 5736.0,
+      "started_at": "2026-06-21T11:55:45.910969+00:00"
+    }
+  ]
+}

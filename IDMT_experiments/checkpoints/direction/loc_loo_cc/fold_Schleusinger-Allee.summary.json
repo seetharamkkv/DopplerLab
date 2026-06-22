@@ -1,0 +1,10 @@
+{
+  "checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\direction\\loc_loo_cc\\fold_Schleusinger-Allee.pt",
+  "best_epoch": 6,
+  "best_val_acc": 0.9878892733564014,
+  "best_val_loss": 0.049838556111545154,
+  "final_epoch": 16,
+  "preempt": true,
+  "epochs_configured": 20,
+  "fold_complete": true
+}

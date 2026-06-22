@@ -1,0 +1,28 @@
+{
+  "accuracy": 0.9985141158989599,
+  "macro_f1": 0.9985085806474489,
+  "per_class_f1": {
+    "L2R": 0.9984177215189873,
+    "R2L": 0.9985994397759104
+  },
+  "confusion_matrix": [
+    [
+      631,
+      1
+    ],
+    [
+      1,
+      713
+    ]
+  ],
+  "confusion_labels": [
+    "L2R",
+    "R2L"
+  ],
+  "n_samples": 1346,
+  "channel_swap": {
+    "flip_consistency": 0.9970282317979198,
+    "n_checked": 1346,
+    "n_correct_flips": 1342
+  }
+}

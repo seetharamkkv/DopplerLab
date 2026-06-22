@@ -1,0 +1,15 @@
+========================================================================
+IDMT DIRECTION — EVALUATION
+========================================================================
+
+  Checkpoint   : D:\Antigravity\DopplerLab\IDMT_experiments\checkpoints\direction\mel_3class\best.pt
+  Feature      : mel
+  Classes      : 3
+
+  Accuracy     : 0.9075
+  Macro F1     : 0.8746
+
+  Per-class F1:
+    L2R: 0.8146
+    R2L: 0.8119
+    no_vehicle: 0.9972
