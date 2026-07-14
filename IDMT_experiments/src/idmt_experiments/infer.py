@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Inference on a single IDMT-style wav clip."""
+"""Inference on a single IDMT-style wav clip.
+
+REPRODUCIBILITY BASELINE (CNN direction: mel_3class, mel_3class_left, mel_3class_right)
+---------------------------------------------------------------------------------
+Thin CLI over ``cnn.inference``; must preserve identical predictions for baseline weights.
+Verified: outputs/_repro/REPRODUCTION.md
+"""
 
 from __future__ import annotations
 
@@ -7,7 +13,7 @@ import argparse
 import json
 from pathlib import Path
 
-from idmt_experiments.src.direction.inference import predict_wav
+from idmt_experiments.cnn.inference import predict_wav
 
 
 def build_parser() -> argparse.ArgumentParser:

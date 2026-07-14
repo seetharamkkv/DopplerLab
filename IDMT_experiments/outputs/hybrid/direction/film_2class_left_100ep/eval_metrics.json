@@ -1,0 +1,50 @@
+{
+  "accuracy": 0.7734026745913819,
+  "balanced_accuracy": 0.7745120199978726,
+  "macro_f1": 0.7732122782352178,
+  "per_class_f1": {
+    "L2R": 0.7666411629686305,
+    "R2L": 0.779783393501805
+  },
+  "per_class_precision": {
+    "L2R": 0.7422222222222222,
+    "R2L": 0.8047690014903129
+  },
+  "per_class_recall": {
+    "L2R": 0.7927215189873418,
+    "R2L": 0.7563025210084033
+  },
+  "confusion_matrix": [
+    [
+      501,
+      131
+    ],
+    [
+      174,
+      540
+    ]
+  ],
+  "confusion_labels": [
+    "L2R",
+    "R2L"
+  ],
+  "n_samples": 1346,
+  "vehicle_only": {
+    "n_vehicle_clips": 1346,
+    "vehicle_balanced_accuracy": 0.7745120199978726,
+    "vehicle_macro_f1": 0.7732122782352178,
+    "vehicle_per_class_recall": {
+      "L2R": 0.7927215189873418,
+      "R2L": 0.7563025210084033
+    },
+    "vehicle_per_class_precision": {
+      "L2R": 0.7422222222222222,
+      "R2L": 0.8047690014903129
+    }
+  },
+  "channel_swap": {
+    "flip_consistency": 0.15601783060921248,
+    "n_checked": 1346,
+    "n_correct_flips": 210
+  }
+}

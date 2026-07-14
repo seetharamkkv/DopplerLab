@@ -1,0 +1,77 @@
+{
+  "features": {
+    "env_energy_half_asymmetry": {
+      "u_stat": 1062263.0,
+      "p_value": 5.394368482721177e-09,
+      "cohens_d": 0.23182853817407195,
+      "mean_L2R": 0.028586697011023537,
+      "mean_R2L": 0.003462786117290465
+    },
+    "env_3db_log_asymmetry": {
+      "u_stat": 851162.5,
+      "p_value": 1.432960642582187e-05,
+      "cohens_d": -0.0433435411912433,
+      "mean_L2R": -0.7240583761521816,
+      "mean_R2L": -0.6032850494633242
+    },
+    "env_3db_rise_minus_fall_s": {
+      "u_stat": 1012869.5,
+      "p_value": 0.0005518739460782511,
+      "cohens_d": 0.10009688893403268,
+      "mean_L2R": 0.08328628004369987,
+      "mean_R2L": 0.03858451859956231
+    },
+    "env_10db_log_asymmetry": {
+      "u_stat": 671379.0,
+      "p_value": 4.330359611576654e-42,
+      "cohens_d": -0.09818183562226719,
+      "mean_L2R": -0.08805527244911202,
+      "mean_R2L": -0.04078071587278707
+    },
+    "env_10db_rise_minus_fall_s": {
+      "u_stat": 1203593.0,
+      "p_value": 6.264063444682057e-40,
+      "cohens_d": 0.38852905268676885,
+      "mean_L2R": 0.06735231548919635,
+      "mean_R2L": 0.019172896912229467
+    },
+    "stft_doppler_slope_diff_hz_s": {
+      "u_stat": 1148967.0,
+      "p_value": 1.338080310819579e-23,
+      "cohens_d": 0.3645754156623726,
+      "mean_L2R": -21.992635775579537,
+      "mean_R2L": -214.85760822861494
+    },
+    "stft_doppler_log_signed_slope_ratio": {
+      "u_stat": 921399.5,
+      "p_value": 0.34019951617933264,
+      "cohens_d": -0.04518815481024031,
+      "mean_L2R": 0.12002197974579279,
+      "mean_R2L": 0.19772224018613835
+    },
+    "centroid_time_asymmetry_s": {
+      "u_stat": 816127.0,
+      "p_value": 1.670800978527435e-09,
+      "cohens_d": -0.22847569719517413,
+      "mean_L2R": -0.03548328451492134,
+      "mean_R2L": -0.009810650343342338
+    }
+  },
+  "n_samples": 2744,
+  "labels": [
+    "L2R",
+    "R2L"
+  ],
+  "ranked_by_effect_size": [
+    "env_10db_rise_minus_fall_s",
+    "stft_doppler_slope_diff_hz_s",
+    "env_energy_half_asymmetry",
+    "centroid_time_asymmetry_s",
+    "env_3db_rise_minus_fall_s",
+    "env_10db_log_asymmetry",
+    "stft_doppler_log_signed_slope_ratio",
+    "env_3db_log_asymmetry"
+  ],
+  "mono_source": "left",
+  "mono_only": true
+}

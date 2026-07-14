@@ -1,0 +1,41 @@
+{
+  "accuracy": 0.9108469539375929,
+  "balanced_accuracy": 0.9052450093961635,
+  "macro_f1": 0.9088750880106876,
+  "per_class_f1": {
+    "L2R": 0.8954703832752613,
+    "R2L": 0.9222797927461139
+  },
+  "per_class_precision": {
+    "L2R": 0.9961240310077519,
+    "R2L": 0.8578313253012049
+  },
+  "per_class_recall": {
+    "L2R": 0.8132911392405063,
+    "R2L": 0.9971988795518207
+  },
+  "confusion_matrix": [
+    [
+      514,
+      118
+    ],
+    [
+      2,
+      712
+    ]
+  ],
+  "confusion_labels": [
+    "L2R",
+    "R2L"
+  ],
+  "n_samples": 1346,
+  "channel_swap_agreement": 0.1062407132243685,
+  "fusion": {
+    "w_left": 0.05,
+    "w_right": 0.95,
+    "vehicle_only": false
+  },
+  "left_checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\transfer\\direction\\deep_mel_2class_left_100ep\\best.pt",
+  "right_checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\transfer\\direction\\deep_mel_2class_right_100ep\\best.pt",
+  "phase": "C"
+}

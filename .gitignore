@@ -11,6 +11,7 @@ __pycache__/
 venv/
 *.pyc
 .ipynb_checkpoints/
+*.egg-info/
 
 # Local data symlinks / caches
 data/batch_outputs/
@@ -19,6 +20,11 @@ data/
 # Reference docs and PDFs (local only, not in repo)
 ref_docs/
 *.pdf
+
+# Local-only tracks (do not publish)
+diffusion_model/
+notebooks/vs13_vocoder_hifigan_colab.ipynb
+length_estimation/src/vocoder/
 
 # OS
 .DS_Store

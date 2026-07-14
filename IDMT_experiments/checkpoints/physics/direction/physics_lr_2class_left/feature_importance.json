@@ -1,0 +1,23 @@
+{
+  "coefficients": {
+    "env_3db_asymmetry": -0.16322514754992526,
+    "env_3db_rise_s": 0.40359445082615053,
+    "env_3db_fall_s": 0.49786769724509483,
+    "env_3db_width_s": 0.6937623106413776,
+    "env_10db_asymmetry": 0.18790645896714872,
+    "env_peak_offset_s": 0.0,
+    "stft_doppler_pre_slope_hz_s": -0.06965653210349708,
+    "stft_doppler_post_slope_hz_s": 0.18253917452088592,
+    "stft_doppler_slope_ratio": 0.25356093094290977,
+    "stft_doppler_transition_width_s": 0.002947786744031003,
+    "centroid_delta_t_s": -0.20615628793665947,
+    "centroid_skew": -0.21160660002367687,
+    "centroid_span_hz": 0.15641790230335648,
+    "centroid_mean_hz": 0.2790523383986203
+  },
+  "intercept": 0.01381050138690646,
+  "classes": [
+    "L2R",
+    "R2L"
+  ]
+}

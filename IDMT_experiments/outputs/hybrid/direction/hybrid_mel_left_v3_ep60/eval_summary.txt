@@ -1,0 +1,16 @@
+========================================================================
+IDMT DIRECTION — HYBRID EVALUATION
+========================================================================
+
+  Checkpoint   : D:\Antigravity\DopplerLab\IDMT_experiments\checkpoints\hybrid\direction\hybrid_mel_left_v3_ep60\best.pt
+  Split        : eusipco
+  Feature      : mel + kinematic_v3
+  Mono source  : left
+  Classes      : 3
+
+  Accuracy          : 0.8872
+  Balanced accuracy : 0.8413
+  Macro F1          : 0.8412
+
+  Vehicle-only bal. acc : 0.7633
+  Vehicle-only macro F1 : 0.7638

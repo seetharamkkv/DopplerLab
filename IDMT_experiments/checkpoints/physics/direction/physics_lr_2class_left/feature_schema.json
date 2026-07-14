@@ -1,0 +1,20 @@
+{
+  "feature_names": [
+    "env_3db_asymmetry",
+    "env_3db_rise_s",
+    "env_3db_fall_s",
+    "env_3db_width_s",
+    "env_10db_asymmetry",
+    "env_peak_offset_s",
+    "stft_doppler_pre_slope_hz_s",
+    "stft_doppler_post_slope_hz_s",
+    "stft_doppler_slope_ratio",
+    "stft_doppler_transition_width_s",
+    "centroid_delta_t_s",
+    "centroid_skew",
+    "centroid_span_hz",
+    "centroid_mean_hz"
+  ],
+  "feature_set": "kinematic_v1",
+  "n_features": 14
+}

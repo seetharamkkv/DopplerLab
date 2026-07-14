@@ -1,0 +1,16 @@
+{
+  "task": "direction",
+  "mono_source": "left",
+  "n_classes": 2,
+  "include_no_vehicle": false,
+  "classifier": "logistic_antisym",
+  "feature_set": "kinematic_v3",
+  "cpa_mode": "envelope_peak",
+  "use_speed_scaled_features": true,
+  "mic_filter": "SE",
+  "channel_filter": "CH34",
+  "split_name": "eusipco",
+  "val_fraction": 0.1,
+  "split_seed": 42,
+  "max_iter": 2000
+}

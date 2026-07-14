@@ -1,0 +1,61 @@
+{
+  "accuracy": 0.6953937592867756,
+  "balanced_accuracy": 0.6884440485054781,
+  "macro_f1": 0.6877941815416924,
+  "per_class_f1": {
+    "L2R": 0.6390845070422535,
+    "R2L": 0.7365038560411311
+  },
+  "per_class_precision": {
+    "L2R": 0.7202380952380952,
+    "R2L": 0.6805225653206651
+  },
+  "per_class_recall": {
+    "L2R": 0.5743670886075949,
+    "R2L": 0.8025210084033614
+  },
+  "confusion_matrix": [
+    [
+      363,
+      269
+    ],
+    [
+      141,
+      573
+    ]
+  ],
+  "confusion_labels": [
+    "L2R",
+    "R2L"
+  ],
+  "n_samples": 1346,
+  "naive_baselines": {
+    "always_majority": {
+      "majority_class": "R2L",
+      "accuracy": 0.5304606240713224,
+      "balanced_accuracy": 0.5304606240713224
+    }
+  },
+  "interventions": {
+    "labels": [
+      "L2R",
+      "R2L"
+    ],
+    "mono_source": "right",
+    "n_samples": 1346,
+    "time_reverse": {
+      "flip_consistency": 0.6567607726597325,
+      "n_checked": 1346,
+      "n_correct_flips": 884,
+      "flip_agreement": 0.8841010401188707,
+      "n_flipped": 1190
+    },
+    "channel_swap": {
+      "flip_consistency": 0.3789004457652303,
+      "n_checked": 1346,
+      "n_correct_flips": 510,
+      "flip_agreement": 0.17682020802377416,
+      "n_flipped": 238
+    }
+  }
+}

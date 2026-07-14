@@ -1,0 +1,33 @@
+{
+  "feature_names": [
+    "env_peak_offset_s",
+    "env_3db_width_s",
+    "env_3db_rise_s",
+    "env_3db_fall_s",
+    "env_3db_asymmetry",
+    "env_10db_width_s",
+    "env_10db_rise_s",
+    "env_10db_fall_s",
+    "env_10db_asymmetry",
+    "centroid_delta_t_s",
+    "centroid_mean_hz",
+    "centroid_std_hz",
+    "centroid_skew",
+    "centroid_span_hz",
+    "stft_doppler_transition_width_s",
+    "stft_doppler_pre_slope_hz_s",
+    "stft_doppler_post_slope_hz_s",
+    "stft_doppler_slope_ratio",
+    "env_energy_half_asymmetry",
+    "env_3db_log_asymmetry",
+    "env_3db_rise_minus_fall_s",
+    "env_10db_log_asymmetry",
+    "env_10db_rise_minus_fall_s",
+    "stft_doppler_slope_diff_hz_s",
+    "stft_doppler_slope_sum_hz_s",
+    "stft_doppler_log_signed_slope_ratio",
+    "centroid_time_asymmetry_s"
+  ],
+  "feature_set": "kinematic_full",
+  "n_features": 27
+}

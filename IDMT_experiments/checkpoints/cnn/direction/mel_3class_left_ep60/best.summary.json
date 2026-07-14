@@ -1,0 +1,10 @@
+{
+  "checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\cnn\\direction\\mel_3class_left_ep60\\best.pt",
+  "best_epoch": 23,
+  "best_val_acc": 0.9406631762652705,
+  "best_val_loss": 0.16022594407614735,
+  "final_epoch": 60,
+  "preempt": false,
+  "epochs_configured": 60,
+  "fold_complete": true
+}

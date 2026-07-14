@@ -1,0 +1,26 @@
+{
+  "task": "direction",
+  "feature_type": "mel",
+  "mono_source": "mean",
+  "n_classes": 2,
+  "batch_size": 32,
+  "epochs": 100,
+  "lr": 0.0001,
+  "weight_decay": 0.001,
+  "patience": 15,
+  "preempt": false,
+  "hidden_channels": [
+    32,
+    64,
+    128,
+    256
+  ],
+  "dropout": 0.3,
+  "n_mels": 64,
+  "mic_filter": "SE",
+  "channel_filter": "CH34",
+  "split_name": "eusipco",
+  "val_fraction": 0.1,
+  "split_seed": 42,
+  "norm_fit_max_samples": 512
+}

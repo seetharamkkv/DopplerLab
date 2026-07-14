@@ -1,0 +1,13 @@
+{
+  "feature_names": [
+    "env_energy_half_asymmetry",
+    "env_3db_log_asymmetry",
+    "env_3db_rise_minus_fall_s",
+    "env_10db_log_asymmetry",
+    "env_10db_rise_minus_fall_s",
+    "stft_doppler_slope_sum_hz_s",
+    "centroid_time_asymmetry_s"
+  ],
+  "feature_set": "kinematic_v3",
+  "n_features": 7
+}

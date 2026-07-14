@@ -1,0 +1,27 @@
+{
+  "labels": [
+    "L2R",
+    "R2L",
+    "no_vehicle"
+  ],
+  "mono_source": "left",
+  "feature_type": "mel",
+  "n_samples": 1346,
+  "vehicle_only": true,
+  "time_reverse": {
+    "flip_consistency": 0.30089153046062406,
+    "n_checked": 1346,
+    "n_correct_flips": 405,
+    "flip_agreement": 0.12946428571428573,
+    "n_flipped": 174,
+    "n_agreement_checked": 1344
+  },
+  "channel_swap": {
+    "flip_consistency": 0.2384843982169391,
+    "n_checked": 1346,
+    "n_correct_flips": 321,
+    "flip_agreement": 0.06696428571428571,
+    "n_flipped": 90,
+    "n_agreement_checked": 1344
+  }
+}

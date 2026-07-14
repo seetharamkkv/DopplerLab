@@ -1,0 +1,13 @@
+# Large audio dataset shards (local only)
+dataset/
+outputs/
+*.wav
+*.zip
+*.zip.*
+
+# Packaging / caches
+src/*.egg-info/
+**/*.egg-info/
+**/__pycache__/
+.venv/
+venv/

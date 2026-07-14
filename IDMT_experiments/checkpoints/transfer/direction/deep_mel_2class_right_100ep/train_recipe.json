@@ -1,0 +1,14 @@
+{
+  "spec_augment": true,
+  "time_mask_param": 20,
+  "freq_mask_param": 8,
+  "num_time_masks": 2,
+  "num_freq_masks": 2,
+  "balanced_sampler": true,
+  "focal_loss": true,
+  "focal_gamma": 2.0,
+  "label_smoothing": 0.1,
+  "grad_clip_norm": 1.0,
+  "lr_warmup_epochs": 3,
+  "lr_cosine": true
+}

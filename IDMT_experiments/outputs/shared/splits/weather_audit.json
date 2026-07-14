@@ -1,0 +1,54 @@
+{
+  "mic_filter": "SE",
+  "channel_filter": "CH34",
+  "n_vehicle_clips": 4471,
+  "location_weather_counts": {
+    "Fraunhofer-IDMT": {
+      "D": 592,
+      "W": 0
+    },
+    "Langewiesener-Strasse": {
+      "D": 2527,
+      "W": 0
+    },
+    "Schleusinger-Allee": {
+      "D": 522,
+      "W": 830
+    }
+  },
+  "sites_with_wet_recordings": [
+    "Schleusinger-Allee"
+  ],
+  "location_confounded": true,
+  "recommended_split": "weather_site",
+  "recommended_site": "Schleusinger-Allee",
+  "pooled_split": {
+    "split_name": "weather_stratified",
+    "confound_warning": "Wet recordings exist only at Schleusinger-Allee. Non-Schleusinger dry clips inflate pooled accuracy \u2014 prefer split weather_site for honest evaluation.",
+    "test_clips": 894,
+    "test_weather_clips": {
+      "D": 728,
+      "W": 166
+    },
+    "baselines": {
+      "always_dry": 0.814317673378076,
+      "majority_class": 0.814317673378076,
+      "location_oracle_always_wet_at_site": 0.8859060402684564,
+      "location_oracle_train_majority_at_site": 0.8859060402684564
+    }
+  },
+  "site_split": {
+    "split_name": "weather_site",
+    "location": "Schleusinger-Allee",
+    "test_clips": 270,
+    "test_weather_clips": {
+      "W": 166,
+      "D": 104
+    },
+    "baselines": {
+      "always_dry": 0.3851851851851852,
+      "majority_class": 0.6148148148148148,
+      "location_oracle_always_wet_at_site": 0.6148148148148148
+    }
+  }
+}

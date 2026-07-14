@@ -10,8 +10,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
-from idmt_experiments.config import DEFAULT_OUTPUT_DIR, DirectionConfig, resolve_class_labels
-from idmt_experiments.src.direction.metrics import channel_swap_consistency, classification_metrics
+from idmt_experiments.config import DEFAULT_OUTPUT_DIR, DEFAULT_SHARED_OUTPUT_DIR, DirectionConfig, resolve_class_labels
+from idmt_experiments.cnn.metrics import channel_swap_consistency, classification_metrics
 from idmt_experiments.src.features import extract_feature, fit_norm_stats, load_stereo, normalize_feature, swap_stereo_channels
 from idmt_experiments.src.preprocess import ClipRecord, clip_label, filter_records
 from idmt_experiments.src.splits import build_split, verify_no_event_leakage
@@ -31,7 +31,9 @@ def _records_to_xy(
     xs, ys = [], []
     for rec in tqdm(records, desc=desc, leave=False):
         y_audio, sr = load_stereo(rec.wav_path)
-        feat = extract_feature(y_audio, sr, cfg.feature_type, n_mels=cfg.n_mels)
+        feat = extract_feature(
+            y_audio, sr, cfg.feature_type, n_mels=cfg.n_mels, mono_source=cfg.mono_source
+        )
         feat = normalize_feature(feat, norm_stats, cfg.feature_type)
         xs.append(feat.reshape(-1))
         ys.append(clip_label(rec, cfg))
@@ -48,7 +50,17 @@ def run_classical_baseline(
     output_dir: Path | None = None,
 ) -> dict:
     if n_classes is None:
-        n_classes = 5 if task == "vehicle" else 3
+        if task == "vehicle":
+            n_classes = 5
+        elif task == "weather":
+            n_classes = 2
+        else:
+            n_classes = 3
+    if task == "weather":
+        if split_name == "eusipco":
+            split_name = "weather_site"
+        elif split_name not in ("weather_site", "weather_stratified", "weather_holdout"):
+            split_name = "weather_site"
     cfg = DirectionConfig(task=task, feature_type=feature_type, n_classes=n_classes, split_name=split_name)
     _log(f"Classical baseline — task={task}, feature={feature_type}, classes={n_classes}, split={split_name}")
     _log("  Loading split...")
@@ -103,12 +115,20 @@ def run_classical_baseline(
             for rec in tqdm(vehicle_test, desc="swap check", leave=False):
                 y_a, sr = load_stereo(rec.wav_path)
                 f0 = normalize_feature(
-                    extract_feature(y_a, sr, cfg.feature_type, n_mels=cfg.n_mels),
+                    extract_feature(
+                        y_a, sr, cfg.feature_type, n_mels=cfg.n_mels, mono_source=cfg.mono_source
+                    ),
                     norm_stats,
                     cfg.feature_type,
                 )
                 f1 = normalize_feature(
-                    extract_feature(swap_stereo_channels(y_a), sr, cfg.feature_type, n_mels=cfg.n_mels),
+                    extract_feature(
+                        swap_stereo_channels(y_a),
+                        sr,
+                        cfg.feature_type,
+                        n_mels=cfg.n_mels,
+                        mono_source=cfg.mono_source,
+                    ),
                     norm_stats,
                     cfg.feature_type,
                 )
@@ -116,7 +136,7 @@ def run_classical_baseline(
                 swap_pred.append(clf.predict(scaler.transform(f1.reshape(1, -1)))[0])
             swap_metrics = channel_swap_consistency(np.array(orig_pred), np.array(swap_pred), n_classes=n_classes)
 
-    out_dir = (output_dir or DEFAULT_OUTPUT_DIR) / "baselines"
+    out_dir = (output_dir or DEFAULT_SHARED_OUTPUT_DIR) / "baselines"
     out_dir.mkdir(parents=True, exist_ok=True)
     result = {
         "model": "logistic_regression",

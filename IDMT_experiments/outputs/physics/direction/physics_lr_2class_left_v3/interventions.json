@@ -1,0 +1,22 @@
+{
+  "labels": [
+    "L2R",
+    "R2L"
+  ],
+  "mono_source": "left",
+  "n_samples": 1346,
+  "time_reverse": {
+    "flip_consistency": 0.6263001485884101,
+    "n_checked": 1346,
+    "n_correct_flips": 843,
+    "flip_agreement": 0.812035661218425,
+    "n_flipped": 1093
+  },
+  "channel_swap": {
+    "flip_consistency": 0.4227340267459138,
+    "n_checked": 1346,
+    "n_correct_flips": 569,
+    "flip_agreement": 0.13893016344725112,
+    "n_flipped": 187
+  }
+}

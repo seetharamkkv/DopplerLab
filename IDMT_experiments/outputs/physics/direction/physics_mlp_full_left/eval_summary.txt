@@ -1,0 +1,20 @@
+========================================================================
+IDMT DIRECTION — PHYSICS EVALUATION (L2R / R2L only)
+========================================================================
+
+  Run dir      : D:\Antigravity\DopplerLab\IDMT_experiments\checkpoints\physics\direction\physics_mlp_full_left
+  Split        : eusipco
+  Mono source  : left
+  Feature set  : kinematic_full
+  Classifier   : mlp
+
+  Accuracy          : 0.7013
+  Balanced accuracy : 0.7076
+  Macro F1          : 0.7003
+
+  Per-class recall / precision / F1:
+    L2R: recall=0.8101  precision=0.6448  f1=0.7181
+    R2L: recall=0.6050  precision=0.7826  f1=0.6825
+
+  Naive baselines:
+    always_majority: {'majority_class': 'R2L', 'accuracy': 0.5304606240713224, 'balanced_accuracy': 0.5304606240713224}

@@ -1,0 +1,16 @@
+{
+  "coefficients": {
+    "env_energy_half_asymmetry": 0.4797161915264919,
+    "env_3db_log_asymmetry": -0.1480589874334118,
+    "env_3db_rise_minus_fall_s": 0.23335823422227553,
+    "env_10db_log_asymmetry": -0.29878001458561937,
+    "env_10db_rise_minus_fall_s": -0.5744968322141594,
+    "stft_doppler_slope_sum_hz_s": 0.2586646624337481,
+    "centroid_time_asymmetry_s": 0.7651864059089977
+  },
+  "intercept": 0.0,
+  "classes": [
+    "L2R",
+    "R2L"
+  ]
+}

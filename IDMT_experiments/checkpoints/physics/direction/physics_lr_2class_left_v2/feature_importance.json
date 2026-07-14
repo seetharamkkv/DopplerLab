@@ -1,0 +1,17 @@
+{
+  "coefficients": {
+    "env_energy_half_asymmetry": 0.8533902111508413,
+    "env_3db_log_asymmetry": -0.15112973829443654,
+    "env_3db_rise_minus_fall_s": 0.3249718067845928,
+    "env_10db_log_asymmetry": -0.42186075101635373,
+    "env_10db_rise_minus_fall_s": -0.7915689753082285,
+    "stft_doppler_slope_diff_hz_s": -0.4139746756610646,
+    "stft_doppler_log_signed_slope_ratio": -0.014631662907369426,
+    "centroid_time_asymmetry_s": 1.212856140253646
+  },
+  "intercept": -0.004620137067894938,
+  "classes": [
+    "L2R",
+    "R2L"
+  ]
+}

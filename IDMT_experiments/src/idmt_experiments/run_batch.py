@@ -23,7 +23,14 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
-from idmt_experiments.config import DEFAULT_CHECKPOINT_DIR, DEFAULT_OUTPUT_DIR
+from idmt_experiments.config import (
+    DEFAULT_CHECKPOINT_DIR,
+    DEFAULT_OUTPUT_DIR,
+    DEFAULT_SHARED_OUTPUT_DIR,
+    MODEL_CNN,
+    DirectionConfig,
+    resolve_checkpoint_file,
+)
 
 
 @dataclass
@@ -52,7 +59,7 @@ DEFAULT_QUEUE: list[BatchJob] = [
         feature_type="cc",
         n_classes=5,
         mode="eusipco",
-        done_marker="baselines/classical_vehicle_cc_5class.json",
+        done_marker="shared/baselines/classical_vehicle_cc_5class.json",
         est_minutes=20,
     ),
     BatchJob(
@@ -63,7 +70,7 @@ DEFAULT_QUEUE: list[BatchJob] = [
         n_classes=5,
         mode="eusipco",
         epochs=10,
-        done_marker="vehicle/vehicle_cc_eusipco/eval_summary.txt",
+        done_marker="cnn/vehicle/vehicle_cc_eusipco/eval_summary.txt",
         est_minutes=90,
     ),
     BatchJob(
@@ -74,7 +81,7 @@ DEFAULT_QUEUE: list[BatchJob] = [
         n_classes=3,
         mode="weather_holdout",
         epochs=10,
-        done_marker="direction/direction_cc_weather/eval_summary.txt",
+        done_marker="cnn/direction/direction_cc_weather/eval_summary.txt",
         est_minutes=70,
     ),
 ]
@@ -90,7 +97,13 @@ def _marker_path(job: BatchJob) -> Path | None:
     marker = Path(job.done_marker)
     if marker.is_absolute():
         return marker
-    if marker.parts[0] in ("baselines", "direction", "vehicle", "splits", "figures"):
+    if marker.parts[0] == "shared":
+        return DEFAULT_OUTPUT_DIR / marker
+    if marker.parts[0] in ("baselines", "splits", "figures"):
+        return DEFAULT_SHARED_OUTPUT_DIR / marker
+    if marker.parts[0] in ("direction", "vehicle", "weather"):
+        return DEFAULT_OUTPUT_DIR / MODEL_CNN / marker
+    if marker.parts[0] in (MODEL_CNN, "physics"):
         return DEFAULT_OUTPUT_DIR / marker
     if marker.parts[0] == "checkpoints":
         return DEFAULT_CHECKPOINT_DIR / Path(*marker.parts[1:])
@@ -100,8 +113,8 @@ def _marker_path(job: BatchJob) -> Path | None:
 def _is_done(job: BatchJob) -> bool:
     path = _marker_path(job)
     if path is None:
-        ckpt = DEFAULT_CHECKPOINT_DIR / job.task / job.name / "best.pt"
-        return ckpt.exists()
+        cfg = DirectionConfig(task=job.task)
+        return resolve_checkpoint_file(cfg, job.name).exists()
     return path.exists()
 
 
@@ -204,7 +217,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--summary-out",
         type=Path,
-        default=DEFAULT_OUTPUT_DIR / "batch_summary.json",
+        default=DEFAULT_SHARED_OUTPUT_DIR / "batch_summary.json",
         help="Write JSON summary here",
     )
     return p

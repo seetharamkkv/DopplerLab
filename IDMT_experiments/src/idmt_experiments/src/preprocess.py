@@ -1,4 +1,11 @@
-"""Parse IDMT-Traffic filenames, build clip records, manifest I/O."""
+"""Parse IDMT-Traffic filenames, build clip records, manifest I/O.
+
+REPRODUCIBILITY BASELINE — shared CNN dependency (mel_3class / mel_3class_left / mel_3class_right)
+---------------------------------------------------------------------------------
+``direction_label``, ``clip_label``, and ``filter_records`` define CNN labels and clip sets.
+Do not change default behaviour without re-benchmarking all three reference runs.
+Verified: outputs/_repro/REPRODUCTION.md
+"""
 
 from __future__ import annotations
 
@@ -7,7 +14,14 @@ from pathlib import Path
 
 import pandas as pd
 
-from idmt_experiments.config import DEFAULT_ANNOTATION_DIR, DEFAULT_DATA_DIR, DirectionConfig, VEHICLE_CODE_TO_IDX
+from idmt_experiments.config import (
+    DEFAULT_ANNOTATION_DIR,
+    DEFAULT_DATA_DIR,
+    DirectionConfig,
+    PhysicsConfig,
+    VEHICLE_CODE_TO_IDX,
+    WEATHER_CODE_TO_IDX,
+)
 
 
 @dataclass(frozen=True)
@@ -149,6 +163,7 @@ def save_manifest(records: list[ClipRecord], path: Path) -> Path:
 
 
 def direction_label(rec: ClipRecord, n_classes: int) -> int:
+    """Map clip to direction class index (REPRODUCIBILITY BASELINE — CNN label mapping)."""
     if n_classes == 2:
         if rec.is_background:
             raise ValueError("2-class direction task excludes background clips")
@@ -167,9 +182,20 @@ def vehicle_label(rec: ClipRecord) -> int:
     return VEHICLE_CODE_TO_IDX[code]
 
 
+def weather_label(rec: ClipRecord) -> int:
+    if rec.is_background:
+        raise ValueError(f"Weather task excludes background clips: {rec.clip_id}")
+    code = rec.weather.upper()
+    if code not in WEATHER_CODE_TO_IDX:
+        raise ValueError(f"Unknown weather code {rec.weather!r} in {rec.clip_id}")
+    return WEATHER_CODE_TO_IDX[code]
+
+
 def clip_label(rec: ClipRecord, cfg: DirectionConfig) -> int:
     if cfg.task == "vehicle":
         return vehicle_label(rec)
+    if cfg.task == "weather":
+        return weather_label(rec)
     return direction_label(rec, cfg.n_classes)
 
 
@@ -181,6 +207,8 @@ def filter_for_task(
 ) -> list[ClipRecord]:
     if task == "vehicle":
         return list(records)
+    if task == "weather":
+        return [r for r in records if not r.is_background and r.weather in WEATHER_CODE_TO_IDX]
     if n_classes == 2:
         return [r for r in records if not r.is_background]
     return list(records)
@@ -188,6 +216,15 @@ def filter_for_task(
 
 def filter_records(records: list[ClipRecord], cfg: DirectionConfig) -> list[ClipRecord]:
     return filter_for_task(records, cfg.n_classes, task=cfg.task)
+
+
+def filter_physics_records(records: list[ClipRecord], cfg: PhysicsConfig) -> list[ClipRecord]:
+    """Vehicle-only L2R/R2L when include_no_vehicle=False (default)."""
+    if cfg.task != "direction":
+        raise ValueError(f"Physics track supports task=direction only, got {cfg.task!r}")
+    if cfg.include_no_vehicle:
+        return list(records)
+    return [r for r in records if not r.is_background]
 
 
 def annotation_paths(data_dir: Path | None = None) -> dict[str, Path]:

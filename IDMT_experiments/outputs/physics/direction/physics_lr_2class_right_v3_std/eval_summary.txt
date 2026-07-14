@@ -1,0 +1,25 @@
+========================================================================
+IDMT DIRECTION — PHYSICS EVALUATION (L2R / R2L only)
+========================================================================
+
+  Run dir      : D:\Antigravity\DopplerLab\IDMT_experiments\checkpoints\physics\direction\physics_lr_2class_right_v3_std
+  Split        : eusipco
+  Mono source  : right
+  Feature set  : kinematic_v3
+  Classifier   : logistic
+
+  Accuracy          : 0.6954
+  Balanced accuracy : 0.6884
+  Macro F1          : 0.6878
+
+  Per-class recall / precision / F1:
+    L2R: recall=0.5744  precision=0.7202  f1=0.6391
+    R2L: recall=0.8025  precision=0.6805  f1=0.7365
+
+  Naive baselines:
+    always_majority: {'majority_class': 'R2L', 'accuracy': 0.5304606240713224, 'balanced_accuracy': 0.5304606240713224}
+
+  Time-reverse flip consistency : 0.6568 (884/1346)  [vs flipped true label]
+  Time-reverse flip agreement   : 0.8841 (1190/1346)  [mechanism: decision reverses]
+  Channel-swap flip consistency : 0.3789 (510/1346)
+  Channel-swap flip agreement   : 0.1768 (238/1346)

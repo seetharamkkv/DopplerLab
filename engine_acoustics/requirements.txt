@@ -1,0 +1,8 @@
+numpy>=1.24
+scipy>=1.10
+matplotlib>=3.7
+librosa>=0.10
+soundfile>=0.12
+
+# Editable install from repo root:
+#   pip install -e engine_acoustics/src

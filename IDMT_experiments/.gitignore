@@ -4,6 +4,22 @@ IDMT_Traffic/
 # CNN checkpoints (weights only); configs/history/summaries under checkpoints/ are tracked
 checkpoints/**/*.pt
 
+# Local training / eval noise
+outputs/**/*.log
+outputs/**/_run_eval.*
+
+# Local manual test clips and generated prediction sheets
+test/data/*.wav
+test/data/**/*.wav
+test/data/*.avi
+test/data/**/*.avi
+test/data/metadata.txt
+test/predictions.csv
+test/outputs/predictions.csv
+test/outputs/predictions_summary.json
+test/outputs/*.png
+test/outputs/**/*.png
+
 # Python packaging / caches
 *.egg-info/
 __pycache__/

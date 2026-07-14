@@ -1,0 +1,18 @@
+========================================================================
+IDMT DIRECTION — EVALUATION
+========================================================================
+
+  Checkpoint   : D:\Antigravity\DopplerLab\IDMT_experiments\checkpoints\cnn\direction\loc_loo_cc
+  Split        : eusipco
+  Feature      : cc
+  Mono source  : mean
+  Classes      : 3
+
+  Accuracy          : 0.9742
+  Balanced accuracy : 0.9765
+  Macro F1          : 0.9733
+
+  Per-class recall / precision / F1:
+    L2R: recall=0.9762  precision=0.9843  f1=0.9802
+    R2L: recall=0.9878  precision=0.9351  f1=0.9607
+    no_vehicle: recall=0.9656  precision=0.9927  f1=0.9790

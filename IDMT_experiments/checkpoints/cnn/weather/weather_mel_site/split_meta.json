@@ -1,0 +1,45 @@
+{
+  "split_name": "weather_site",
+  "mic_filter": "SE",
+  "channel_filter": "CH34",
+  "val_fraction": 0.1,
+  "test_fraction": 0.2,
+  "seed": 42,
+  "audit": {
+    "ok": true,
+    "n_train_events": 974,
+    "n_valid_events": 108,
+    "n_test_events": 270,
+    "train_valid_event_overlap": [],
+    "train_test_event_overlap": [],
+    "valid_test_event_overlap": []
+  },
+  "per_class_event_counts": {
+    "D": {
+      "n_events": 522,
+      "n_test_events": 104,
+      "n_train_pool_events": 418
+    },
+    "W": {
+      "n_events": 830,
+      "n_test_events": 166,
+      "n_train_pool_events": 664
+    }
+  },
+  "location": "Schleusinger-Allee",
+  "n_train_clips": 974,
+  "n_valid_clips": 108,
+  "n_test_clips": 270,
+  "train_weather_clips": {
+    "W": 598,
+    "D": 376
+  },
+  "valid_weather_clips": {
+    "W": 66,
+    "D": 42
+  },
+  "test_weather_clips": {
+    "W": 166,
+    "D": 104
+  }
+}

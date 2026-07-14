@@ -1,0 +1,81 @@
+{
+  "n_samples": 2744,
+  "mono_only": true,
+  "test": "time_reverse_same_channel",
+  "features": {
+    "env_3db_log_asymmetry": {
+      "corr_fwd_rev": 1.0,
+      "sign_flip_rate": 0.0,
+      "cohens_d_fwd": -0.037361832679423314,
+      "cohens_d_rev": -0.037361832679423314,
+      "separation_sign_flips": false,
+      "abs_cohens_d_fwd": 0.037361832679423314,
+      "abs_cohens_d_rev": 0.037361832679423314
+    },
+    "env_3db_rise_minus_fall_s": {
+      "corr_fwd_rev": 0.9999999999999998,
+      "sign_flip_rate": 0.0,
+      "cohens_d_fwd": 0.10298393642176007,
+      "cohens_d_rev": 0.10298393642176007,
+      "separation_sign_flips": false,
+      "abs_cohens_d_fwd": 0.10298393642176007,
+      "abs_cohens_d_rev": 0.10298393642176007
+    },
+    "env_10db_log_asymmetry": {
+      "corr_fwd_rev": 1.0,
+      "sign_flip_rate": 0.0,
+      "cohens_d_fwd": -0.025716654485394983,
+      "cohens_d_rev": -0.025716654485394983,
+      "separation_sign_flips": false,
+      "abs_cohens_d_fwd": 0.025716654485394983,
+      "abs_cohens_d_rev": 0.025716654485394983
+    },
+    "env_10db_rise_minus_fall_s": {
+      "corr_fwd_rev": 0.9999999999999999,
+      "sign_flip_rate": 0.0,
+      "cohens_d_fwd": 0.08293749473415941,
+      "cohens_d_rev": 0.08293749473415941,
+      "separation_sign_flips": false,
+      "abs_cohens_d_fwd": 0.08293749473415941,
+      "abs_cohens_d_rev": 0.08293749473415941
+    },
+    "stft_doppler_slope_diff_hz_s": {
+      "corr_fwd_rev": 1.0,
+      "sign_flip_rate": 0.0,
+      "cohens_d_fwd": 0.07235051301622016,
+      "cohens_d_rev": 0.07235051301622016,
+      "separation_sign_flips": false,
+      "abs_cohens_d_fwd": 0.07235051301622016,
+      "abs_cohens_d_rev": 0.07235051301622016
+    },
+    "stft_doppler_log_signed_slope_ratio": {
+      "corr_fwd_rev": 1.0,
+      "sign_flip_rate": 0.0,
+      "cohens_d_fwd": 0.01188621894744185,
+      "cohens_d_rev": 0.01188621894744185,
+      "separation_sign_flips": false,
+      "abs_cohens_d_fwd": 0.01188621894744185,
+      "abs_cohens_d_rev": 0.01188621894744185
+    },
+    "centroid_delta_t_s": {
+      "corr_fwd_rev": 0.9999999999999999,
+      "sign_flip_rate": 0.0,
+      "cohens_d_fwd": 0.16049339408975186,
+      "cohens_d_rev": 0.16049339408975186,
+      "separation_sign_flips": false,
+      "abs_cohens_d_fwd": 0.16049339408975186,
+      "abs_cohens_d_rev": 0.16049339408975186
+    }
+  },
+  "ranked_by_anticorrelation": [
+    "env_3db_rise_minus_fall_s",
+    "env_10db_rise_minus_fall_s",
+    "centroid_delta_t_s",
+    "env_3db_log_asymmetry",
+    "env_10db_log_asymmetry",
+    "stft_doppler_slope_diff_hz_s",
+    "stft_doppler_log_signed_slope_ratio"
+  ],
+  "separation_flips_with_effect": [],
+  "mono_source": "left"
+}

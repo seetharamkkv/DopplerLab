@@ -1,0 +1,20 @@
+========================================================================
+IDMT DIRECTION — EVALUATION
+========================================================================
+
+  Checkpoint   : D:\Antigravity\DopplerLab\IDMT_experiments\checkpoints\cnn\direction\mel_3class_right\best.pt
+  Split        : eusipco
+  Feature      : mel
+  Mono source  : right
+  Classes      : 3
+
+  Accuracy          : 0.8771
+  Balanced accuracy : 0.8237
+  Macro F1          : 0.8199
+
+  Per-class recall / precision / F1:
+    L2R: recall=0.5158  precision=0.9132  f1=0.6593
+    R2L: recall=0.9566  precision=0.6899  f1=0.8016
+    no_vehicle: recall=0.9986  precision=0.9993  f1=0.9989
+
+  Channel-swap flip consistency : 0.1108 (149/1345)

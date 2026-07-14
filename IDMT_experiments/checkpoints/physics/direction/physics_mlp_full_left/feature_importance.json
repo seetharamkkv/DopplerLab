@@ -1,0 +1,37 @@
+{
+  "method": "permutation_importance",
+  "scoring": "balanced_accuracy",
+  "importances": {
+    "env_peak_offset_s": 0.001434331797235111,
+    "env_3db_width_s": 0.03155529953917056,
+    "env_3db_rise_s": 0.04611367127496165,
+    "env_3db_fall_s": 0.04273617511520741,
+    "env_3db_asymmetry": 0.006177035330261205,
+    "env_10db_width_s": 0.004114823348694352,
+    "env_10db_rise_s": 0.015305299539170591,
+    "env_10db_fall_s": 0.014852150537634468,
+    "env_10db_asymmetry": 0.018327572964669792,
+    "centroid_delta_t_s": 0.010370583717357962,
+    "centroid_mean_hz": 0.014412442396313396,
+    "centroid_std_hz": -0.0017357910906297346,
+    "centroid_skew": -0.0021332565284177705,
+    "centroid_span_hz": -0.0016129032258064059,
+    "stft_doppler_transition_width_s": 0.0,
+    "stft_doppler_pre_slope_hz_s": -0.0011635944700459921,
+    "stft_doppler_post_slope_hz_s": 0.010172811059907916,
+    "stft_doppler_slope_ratio": -0.0014631336405529828,
+    "env_energy_half_asymmetry": 0.00020161290322587844,
+    "env_3db_log_asymmetry": 0.0057565284178187955,
+    "env_3db_rise_minus_fall_s": 0.009817588325652904,
+    "env_10db_log_asymmetry": -0.00022273425499228506,
+    "env_10db_rise_minus_fall_s": 0.00027265745007684086,
+    "stft_doppler_slope_diff_hz_s": 0.002557603686636034,
+    "stft_doppler_slope_sum_hz_s": -0.007764976958525282,
+    "stft_doppler_log_signed_slope_ratio": -0.0002208141321043744,
+    "centroid_time_asymmetry_s": 0.03244431643625199
+  },
+  "classes": [
+    "L2R",
+    "R2L"
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "layout": "vs13",
+  "model": "fusion_2class_100ep",
+  "checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\transfer\\direction\\deep_mel_2class_right_100ep\\best.pt",
+  "n_vehicles": 13,
+  "n_clips": 400,
+  "n_L2R": 263,
+  "n_R2L": 137,
+  "n_no_vehicle": 0,
+  "pct_L2R": 0.6575,
+  "pct_R2L": 0.3425,
+  "pct_no_vehicle": 0.0,
+  "majority_prediction": "L2R",
+  "direction_only": true,
+  "per_vehicle": [
+    {
+      "car_group": "CitroenC4Picasso",
+      "n_clips": 23,
+      "n_L2R": 18,
+      "n_R2L": 5,
+      "n_no_vehicle": 0,
+      "pct_L2R": 0.7826,
+      "pct_R2L": 0.2174,
+      "majority_prediction": "L2R"
+    },
+    {
+      "car_group": "KiaSportage",
+      "n_clips": 33,
+      "n_L2R": 33,
+      "n_R2L": 0,
+      "n_no_vehicle": 0,
+      "pct_L2R": 1.0,
+      "pct_R2L": 0.0,
+      "majority_prediction": "L2R"
+    },
+    {
+      "car_group": "Mazda3",
+      "n_clips": 32,
+      "n_L2R": 27,
+      "n_R2L": 5,
+      "n_no_vehicle": 0,
+      "pct_L2R": 0.8438,
+      "pct_R2L": 0.1562,
+      "majority_prediction": "L2R"
+    },
+    {
+      "car_group": "MercedesAMG550",
+      "n_clips": 30,
+      "n_L2R": 18,
+      "n_R2L": 12,
+      "n_no_vehicle": 0,
+      "pct_L2R": 0.6,
+      "pct_R2L": 0.4,
+      "majority_prediction": "L2R"
+    },
+    {
+      "car_group": "MercedesGLA",
+      "n_clips": 34,
+      "n_L2R": 10,
+      "n_R2L": 24,
+      "n_no_vehicle": 0,
+      "pct_L2R": 0.2941,
+      "pct_R2L": 0.7059,
+      "majority_prediction": "R2L"
+    },
+    {
+      "car_group": "NissanQashqai",
+      "n_clips": 29,
+      "n_L2R": 29,
+      "n_R2L": 0,
+      "n_no_vehicle": 0,
+      "pct_L2R": 1.0,
+      "pct_R2L": 0.0,
+      "majority_prediction": "L2R"
+    },
+    {
+      "car_group": "OpelInsignia",
+      "n_clips": 27,
+      "n_L2R": 25,
+      "n_R2L": 2,
+      "n_no_vehicle": 0,
+      "pct_L2R": 0.9259,
+      "pct_R2L": 0.0741,
+      "majority_prediction": "L2R"
+    },
+    {
+      "car_group": "Peugeot208",
+      "n_clips": 29,
+      "n_L2R": 29,
+      "n_R2L": 0,
+      "n_no_vehicle": 0,
+      "pct_L2R": 1.0,
+      "pct_R2L": 0.0,
+      "majority_prediction": "L2R"
+    },
+    {
+      "car_group": "Peugeot3008",
+      "n_clips": 31,
+      "n_L2R": 26,
+      "n_R2L": 5,
+      "n_no_vehicle": 0,
+      "pct_L2R": 0.8387,
+      "pct_R2L": 0.1613,
+      "majority_prediction": "L2R"
+    },
+    {
+      "car_group": "Peugeot307",
+      "n_clips": 29,
+      "n_L2R": 4,
+      "n_R2L": 25,
+      "n_no_vehicle": 0,
+      "pct_L2R": 0.1379,
+      "pct_R2L": 0.8621,
+      "majority_prediction": "R2L"
+    },
+    {
+      "car_group": "RenaultCaptur",
+      "n_clips": 33,
+      "n_L2R": 6,
+      "n_R2L": 27,
+      "n_no_vehicle": 0,
+      "pct_L2R": 0.1818,
+      "pct_R2L": 0.8182,
+      "majority_prediction": "R2L"
+    },
+    {
+      "car_group": "RenaultScenic",
+      "n_clips": 35,
+      "n_L2R": 35,
+      "n_R2L": 0,
+      "n_no_vehicle": 0,
+      "pct_L2R": 1.0,
+      "pct_R2L": 0.0,
+      "majority_prediction": "L2R"
+    },
+    {
+      "car_group": "VWPassat",
+      "n_clips": 35,
+      "n_L2R": 3,
+      "n_R2L": 32,
+      "n_no_vehicle": 0,
+      "pct_L2R": 0.0857,
+      "pct_R2L": 0.9143,
+      "majority_prediction": "R2L"
+    }
+  ],
+  "fusion": true,
+  "w_left": 0.05,
+  "w_right": 0.95,
+  "left_checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\transfer\\direction\\deep_mel_2class_left_100ep\\best.pt",
+  "right_checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\transfer\\direction\\deep_mel_2class_right_100ep\\best.pt"
+}

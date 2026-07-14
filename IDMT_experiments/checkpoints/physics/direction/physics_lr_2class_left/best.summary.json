@@ -1,0 +1,40 @@
+{
+  "model": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\physics\\direction\\physics_lr_2class_left\\model.joblib",
+  "n_train": 2744,
+  "n_val": 323,
+  "val_accuracy": 0.7275541795665634,
+  "val_balanced_accuracy": 0.7283602150537635,
+  "val_macro_f1": 0.7275306748466257,
+  "val_metrics": {
+    "accuracy": 0.7275541795665634,
+    "balanced_accuracy": 0.7283602150537635,
+    "macro_f1": 0.7275306748466257,
+    "per_class_f1": {
+      "L2R": 0.725,
+      "R2L": 0.7300613496932515
+    },
+    "per_class_precision": {
+      "L2R": 0.703030303030303,
+      "R2L": 0.7531645569620253
+    },
+    "per_class_recall": {
+      "L2R": 0.7483870967741936,
+      "R2L": 0.7083333333333334
+    },
+    "confusion_matrix": [
+      [
+        116,
+        39
+      ],
+      [
+        49,
+        119
+      ]
+    ],
+    "confusion_labels": [
+      "L2R",
+      "R2L"
+    ],
+    "n_samples": 323
+  }
+}

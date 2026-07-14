@@ -7,7 +7,7 @@ Examples
 python -m idmt_experiments.run index
 python -m idmt_experiments.run audit
 python -m idmt_experiments.run classical --feature-type cc
-python -m idmt_experiments.run plot-physics --out outputs/figures/cc_direction_proof.png
+python -m idmt_experiments.run plot-physics --out outputs/shared/figures/cc_direction_proof.png
 """
 
 from __future__ import annotations
@@ -19,11 +19,12 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from idmt_experiments.config import DEFAULT_DATA_DIR, DEFAULT_OUTPUT_DIR
+from idmt_experiments.config import DEFAULT_DATA_DIR, DEFAULT_SHARED_OUTPUT_DIR
 from idmt_experiments.src.baselines import run_classical_baseline
 from idmt_experiments.src.features import compute_cc_stack, compute_log_mel, load_stereo
 from idmt_experiments.src.preprocess import discover_all_clips, filter_for_task, save_manifest
 from idmt_experiments.src.splits import build_eusipco_split, default_split_meta_path, persist_split_meta
+from idmt_experiments.src.weather_audit import audit_weather_dataset
 
 
 def cmd_index(args) -> None:
@@ -60,6 +61,39 @@ def cmd_audit(args) -> None:
         print("  FAIL — overlaps:", audit)
         raise SystemExit(1)
     print("  PASS — no shared events across train / valid / test")
+
+
+def cmd_audit_weather(args) -> None:
+    report = audit_weather_dataset(
+        args.data_dir,
+        mic_filter=args.mic,
+        channel_filter=args.channel,
+    )
+    out_path = args.output_dir / "splits" / "weather_audit.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+
+    print("Weather dataset audit")
+    print(f"  vehicle clips     : {report['n_vehicle_clips']}")
+    print(f"  location confound : {report['location_confounded']}")
+    print(f"  wet recorded at   : {report['sites_with_wet_recordings']}")
+    print(f"  recommended split : {report['recommended_split']} @ {report['recommended_site']}")
+    print("")
+    print("  Location x weather (full dataset):")
+    for loc, counts in report["location_weather_counts"].items():
+        d, w = counts.get("D", 0), counts.get("W", 0)
+        print(f"    {loc}: D={d} W={w}")
+    print("")
+    pooled = report["pooled_split"]["baselines"]
+    site = report["site_split"]["baselines"]
+    print("  Pooled test baselines (weather_stratified — inflated):")
+    for k, v in pooled.items():
+        print(f"    {k}: {v:.4f}")
+    print("")
+    print("  Site-only test baselines (weather_site — honest):")
+    for k, v in site.items():
+        print(f"    {k}: {v:.4f}")
+    print(f"\n  Wrote {out_path}")
 
 
 def cmd_classical(args) -> None:
@@ -116,27 +150,28 @@ def cmd_plot_physics(args) -> None:
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="IDMT experiments utilities")
     p.add_argument("--data-dir", type=Path, default=DEFAULT_DATA_DIR)
-    p.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    p.add_argument("--output-dir", type=Path, default=DEFAULT_SHARED_OUTPUT_DIR)
     p.add_argument("--mic", default="SE")
     p.add_argument("--channel", default="CH34")
     sub = p.add_subparsers(dest="command", required=True)
 
     sub.add_parser("index", help="Build manifest CSV + stats")
     sub.add_parser("audit", help="Verify EUSIPCO split has no event leakage")
+    sub.add_parser("audit-weather", help="Weather confound audit + naive baselines")
 
     c = sub.add_parser("classical", help="Logistic regression baseline (fast, no GPU)")
-    c.add_argument("--task", choices=["direction", "vehicle"], default="direction")
+    c.add_argument("--task", choices=["direction", "vehicle", "weather"], default="direction")
     c.add_argument("--feature-type", choices=["mel", "cc", "stereo_mel"], default="cc")
     c.add_argument("--n-classes", type=int, default=None)
     c.add_argument(
         "--mode",
-        choices=["eusipco", "weather_holdout"],
+        choices=["eusipco", "weather_holdout", "weather_site", "weather_pooled"],
         default="eusipco",
         help="Split for classical baseline",
     )
 
     pl = sub.add_parser("plot-physics", help="Save mel + CC figure for L2R vs R2L")
-    pl.add_argument("--out", type=Path, default=DEFAULT_OUTPUT_DIR / "figures" / "cc_direction_proof.png")
+    pl.add_argument("--out", type=Path, default=DEFAULT_SHARED_OUTPUT_DIR / "figures" / "cc_direction_proof.png")
     return p
 
 
@@ -146,6 +181,8 @@ def main() -> None:
         cmd_index(args)
     elif args.command == "audit":
         cmd_audit(args)
+    elif args.command == "audit-weather":
+        cmd_audit_weather(args)
     elif args.command == "classical":
         cmd_classical(args)
     elif args.command == "plot-physics":

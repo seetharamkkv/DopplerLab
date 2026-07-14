@@ -1,0 +1,56 @@
+{
+  "accuracy": 0.9075416968817984,
+  "balanced_accuracy": 0.8762652602906548,
+  "macro_f1": 0.8745537495246296,
+  "per_class_f1": {
+    "L2R": 0.8145941921072226,
+    "R2L": 0.8118959107806691,
+    "no_vehicle": 0.9971711456859972
+  },
+  "per_class_precision": {
+    "L2R": 0.7693389592123769,
+    "R2L": 0.8652931854199684,
+    "no_vehicle": 0.9957627118644068
+  },
+  "per_class_recall": {
+    "L2R": 0.865506329113924,
+    "R2L": 0.7647058823529411,
+    "no_vehicle": 0.9985835694050992
+  },
+  "confusion_matrix": [
+    [
+      547,
+      84,
+      1
+    ],
+    [
+      163,
+      546,
+      5
+    ],
+    [
+      1,
+      1,
+      1410
+    ]
+  ],
+  "confusion_labels": [
+    "L2R",
+    "R2L",
+    "no_vehicle"
+  ],
+  "n_samples": 2758,
+  "vehicle_only": {
+    "n_vehicle_clips": 1346,
+    "vehicle_balanced_accuracy": 0.8151061057334326,
+    "vehicle_macro_f1": 0.8138505961251863,
+    "vehicle_per_class_recall": {
+      "L2R": 0.865506329113924,
+      "R2L": 0.7647058823529411
+    },
+    "vehicle_per_class_precision": {
+      "L2R": 0.7704225352112676,
+      "R2L": 0.8666666666666667
+    }
+  }
+}

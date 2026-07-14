@@ -1,0 +1,10 @@
+{
+  "checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\hybrid\\direction\\hybrid_mel_left_v3_ep60\\best.pt",
+  "best_epoch": 50,
+  "best_val_acc": 0.9354275741710296,
+  "best_val_loss": 0.1504442896693945,
+  "final_epoch": 60,
+  "preempt": false,
+  "epochs_configured": 60,
+  "fold_complete": true
+}

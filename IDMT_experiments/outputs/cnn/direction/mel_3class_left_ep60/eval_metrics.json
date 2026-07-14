@@ -1,0 +1,75 @@
+{
+  "accuracy": 0.8984771573604061,
+  "balanced_accuracy": 0.8578588402167383,
+  "macro_f1": 0.8587785409315769,
+  "per_class_f1": {
+    "L2R": 0.7572304995617879,
+    "R2L": 0.8208762886597938,
+    "no_vehicle": 0.9982288345731491
+  },
+  "per_class_precision": {
+    "L2R": 0.8487229862475442,
+    "R2L": 0.7601431980906921,
+    "no_vehicle": 0.9985825655563431
+  },
+  "per_class_recall": {
+    "L2R": 0.6835443037974683,
+    "R2L": 0.8921568627450981,
+    "no_vehicle": 0.9978753541076487
+  },
+  "confusion_matrix": [
+    [
+      432,
+      199,
+      1
+    ],
+    [
+      76,
+      637,
+      1
+    ],
+    [
+      1,
+      2,
+      1409
+    ]
+  ],
+  "confusion_labels": [
+    "L2R",
+    "R2L",
+    "no_vehicle"
+  ],
+  "n_samples": 2758,
+  "channel_swap": {
+    "flip_consistency": 0.06696428571428571,
+    "n_checked": 1344,
+    "n_correct_flips": 90
+  },
+  "interventions": {
+    "labels": [
+      "L2R",
+      "R2L",
+      "no_vehicle"
+    ],
+    "mono_source": "left",
+    "feature_type": "mel",
+    "n_samples": 1346,
+    "vehicle_only": true,
+    "time_reverse": {
+      "flip_consistency": 0.30089153046062406,
+      "n_checked": 1346,
+      "n_correct_flips": 405,
+      "flip_agreement": 0.12946428571428573,
+      "n_flipped": 174,
+      "n_agreement_checked": 1344
+    },
+    "channel_swap": {
+      "flip_consistency": 0.2384843982169391,
+      "n_checked": 1346,
+      "n_correct_flips": 321,
+      "flip_agreement": 0.06696428571428571,
+      "n_flipped": 90,
+      "n_agreement_checked": 1344
+    }
+  }
+}

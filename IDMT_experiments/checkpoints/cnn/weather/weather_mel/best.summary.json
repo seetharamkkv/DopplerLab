@@ -1,0 +1,10 @@
+{
+  "checkpoint": "D:\\Antigravity\\DopplerLab\\IDMT_experiments\\checkpoints\\weather\\weather_mel\\best.pt",
+  "best_epoch": 12,
+  "best_val_acc": 0.9273743016759777,
+  "best_val_loss": 0.1745903209472696,
+  "final_epoch": 22,
+  "preempt": true,
+  "epochs_configured": 40,
+  "fold_complete": true
+}

@@ -1,0 +1,85 @@
+{
+  "accuracy": 0.8629629629629629,
+  "balanced_accuracy": 0.865210843373494,
+  "macro_f1": 0.857892715401357,
+  "per_class_f1": {
+    "dry": 0.8310502283105022,
+    "wet": 0.8847352024922118
+  },
+  "per_class_precision": {
+    "dry": 0.7913043478260869,
+    "wet": 0.9161290322580645
+  },
+  "per_class_recall": {
+    "dry": 0.875,
+    "wet": 0.8554216867469879
+  },
+  "confusion_matrix": [
+    [
+      91,
+      13
+    ],
+    [
+      24,
+      142
+    ]
+  ],
+  "confusion_labels": [
+    "dry",
+    "wet"
+  ],
+  "n_samples": 270,
+  "subgroup_metrics": {
+    "location": {
+      "Schleusinger-Allee": {
+        "n": 270,
+        "accuracy": 0.8629629629629629,
+        "balanced_accuracy": 0.865210843373494,
+        "macro_f1": 0.857892715401357,
+        "per_class_recall": {
+          "dry": 0.875,
+          "wet": 0.8554216867469879
+        }
+      }
+    },
+    "vehicle": {
+      "B": {
+        "n": 1,
+        "accuracy": 1.0,
+        "balanced_accuracy": 1.0,
+        "macro_f1": 0.5,
+        "per_class_recall": {
+          "dry": 1.0,
+          "wet": 0.0
+        }
+      },
+      "C": {
+        "n": 228,
+        "accuracy": 0.8771929824561403,
+        "balanced_accuracy": 0.8852272727272728,
+        "macro_f1": 0.8736842105263158,
+        "per_class_recall": {
+          "dry": 0.9204545454545454,
+          "wet": 0.85
+        }
+      },
+      "T": {
+        "n": 41,
+        "accuracy": 0.7804878048780488,
+        "balanced_accuracy": 0.7423076923076923,
+        "macro_f1": 0.7515151515151515,
+        "per_class_recall": {
+          "dry": 0.6,
+          "wet": 0.8846153846153846
+        }
+      }
+    }
+  },
+  "naive_baselines": {
+    "always_dry": 0.3851851851851852,
+    "majority_class": 0.6148148148148148,
+    "location_oracle_always_wet_at_site": 0.6148148148148148,
+    "location_oracle_train_majority_at_site": 0.6148148148148148,
+    "model_minus_location_oracle": 0.24814814814814812
+  }
+}

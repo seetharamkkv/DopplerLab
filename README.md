@@ -48,6 +48,7 @@ Simulated data supports the full breadth of these tasks. Real-world datasets imp
 | [**IDMT_experiments**](IDMT_experiments/) | Real traffic audio: pass-by direction, vehicle type, generalization splits, classical and neural baselines | Active: code + eval outputs in repo |
 | [**length_estimation**](length_estimation/) | Real pass-bys (VS13): estimate vehicle length from a single-microphone recording | Active package |
 | [**speed_estimation**](speed_estimation/) | Simulated multi-task benchmarks (path, speed, distance) on DopplerSim batch exports | Notebook-first training track |
+| [**engine_acoustics**](engine_acoustics/) | Four-stroke engine source model: RPM / cylinder acoustics synthesis + order tracking | Active package |
 
 Archived or scratch runs may appear under `backup/`. Local planning notes and PDFs live under `ref_docs/` (not tracked in git).
 
@@ -62,6 +63,7 @@ Each implemented track has its own README with setup, splits, and usage.
 | [**IDMT_experiments**](IDMT_experiments/) | [IDMT_experiments/README.md](IDMT_experiments/README.md) |
 | [**length_estimation**](length_estimation/) | [length_estimation/README.md](length_estimation/README.md) |
 | [**speed_estimation**](speed_estimation/) | [speed_estimation/README.md](speed_estimation/README.md) |
+| [**engine_acoustics**](engine_acoustics/) | [engine_acoustics/README.md](engine_acoustics/README.md) |
 
 ---
 
@@ -72,6 +74,7 @@ DopplerLab/
 ├── IDMT_experiments/     # Real-world traffic experiments + committed eval outputs
 ├── length_estimation/    # VS13 vehicle length
 ├── speed_estimation/     # Simulated speed / path / distance (notebooks)
+├── engine_acoustics/     # Engine RPM / cylinder physics synthesis + order analysis
 ├── backup/               # Archived experiment artifacts
 └── ref_docs/             # Local benchmarks and write-ups (gitignored)
 ```

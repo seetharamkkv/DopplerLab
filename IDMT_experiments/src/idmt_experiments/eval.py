@@ -1,25 +1,38 @@
 #!/usr/bin/env python3
-"""Evaluate IDMT classifier checkpoint."""
+"""Evaluate IDMT classifier checkpoint.
+
+REPRODUCIBILITY BASELINE (CNN direction: mel_3class, mel_3class_left, mel_3class_right)
+---------------------------------------------------------------------------------
+Default eval path (--mode eusipco, --split test) reproduces published metrics. Do not
+change default behaviour without re-benchmarking all three reference runs.
+Verified: outputs/_repro/REPRODUCTION.md
+"""
 
 from __future__ import annotations
 
 import argparse
 from pathlib import Path
 
-from idmt_experiments.config import DEFAULT_CHECKPOINT_DIR, DEFAULT_OUTPUT_DIR, DirectionConfig, checkpoint_subdir
-from idmt_experiments.src.direction.eval import run_eval, run_eval_location_loo
-from idmt_experiments.src.direction.train import load_checkpoint
+from idmt_experiments.cnn.eval import run_eval, run_eval_location_loo
+from idmt_experiments.cnn.train import load_checkpoint
+from idmt_experiments.config import (
+    DEFAULT_CHECKPOINT_DIR,
+    DEFAULT_OUTPUT_DIR,
+    DirectionConfig,
+    resolve_checkpoint_file,
+    resolve_run_dir,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Evaluate IDMT CNN")
     p.add_argument("--data-dir", type=Path, default=None)
     p.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    p.add_argument("--task", choices=["direction", "vehicle"], default=None, help="Default: read from checkpoint")
+    p.add_argument("--task", choices=["direction", "vehicle", "weather"], default=None, help="Default: read from checkpoint")
     p.add_argument("--mode", choices=["eusipco", "location_loo", "weather_holdout"], default="eusipco")
     p.add_argument("--checkpoint", type=Path, default=None, help="best.pt for single-checkpoint modes")
     p.add_argument("--run-dir", type=Path, default=None, help="Run dir with fold_*.pt for LOO")
-    p.add_argument("--run-name", type=str, default=None, help="Resolve under checkpoints/<task>/")
+    p.add_argument("--run-name", type=str, default=None, help="Resolve under checkpoints/cnn/<task>/")
     p.add_argument("--split", choices=["test", "valid", "train"], default="test")
     p.add_argument("--device", default="auto")
     p.add_argument("--no-swap-test", action="store_true", help="Skip channel-swap causality check")
@@ -33,7 +46,7 @@ def _resolve_checkpoint(args, task: str) -> Path | None:
         return None
     if args.run_name:
         cfg = DirectionConfig(task=task)
-        return DEFAULT_CHECKPOINT_DIR / checkpoint_subdir(cfg) / args.run_name / "best.pt"
+        return resolve_checkpoint_file(cfg, args.run_name)
     return None
 
 
@@ -43,7 +56,7 @@ def main() -> None:
     run_dir = args.run_dir
     if args.run_name and not run_dir and args.mode == "location_loo":
         cfg = DirectionConfig(task=task)
-        run_dir = DEFAULT_CHECKPOINT_DIR / checkpoint_subdir(cfg) / args.run_name
+        run_dir = resolve_run_dir(cfg, args.run_name, root=DEFAULT_CHECKPOINT_DIR)
 
     if args.mode == "location_loo":
         if not run_dir:

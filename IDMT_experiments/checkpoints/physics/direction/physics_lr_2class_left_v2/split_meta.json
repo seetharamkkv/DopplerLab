@@ -1,0 +1,17 @@
+{
+  "split_name": "eusipco",
+  "mic_filter": "SE",
+  "channel_filter": "CH34",
+  "val_fraction": 0.1,
+  "seed": 42,
+  "audit": {
+    "ok": true,
+    "n_train_events": 5153,
+    "n_valid_events": 573,
+    "n_test_events": 2758,
+    "train_valid_event_overlap": [],
+    "train_test_event_overlap": [],
+    "valid_test_event_overlap": []
+  },
+  "n_test_clips": 1346
+}

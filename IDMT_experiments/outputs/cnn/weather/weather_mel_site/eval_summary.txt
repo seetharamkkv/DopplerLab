@@ -1,0 +1,26 @@
+========================================================================
+IDMT WEATHER — EVALUATION
+========================================================================
+
+  Checkpoint   : D:\Antigravity\DopplerLab\IDMT_experiments\checkpoints\weather\weather_mel_site\best.pt
+  Split        : weather_site
+  Feature      : mel
+  Classes      : 2
+
+  Accuracy          : 0.8630
+  Balanced accuracy : 0.8652
+  Macro F1          : 0.8579
+
+  Per-class recall / precision / F1:
+    dry: recall=0.8750  precision=0.7913  f1=0.8311
+    wet: recall=0.8554  precision=0.9161  f1=0.8847
+
+  Naive baselines (same test set):
+    always_dry: 0.3852
+    majority_class: 0.6148
+    location_oracle_always_wet_at_site: 0.6148
+    location_oracle_train_majority_at_site: 0.6148
+    model_minus_location_oracle: 0.2481
+
+  By location:
+    Schleusinger-Allee: n=270 acc=0.8630 bal_acc=0.8652 macro_f1=0.8579
