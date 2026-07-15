@@ -32,6 +32,7 @@ from length_estimation.src.preprocess import (
     resolve_data_dir,
     save_manifest,
 )
+from length_estimation.jasa_week import run_ablation1, run_full_pipeline
 
 
 def _get_records(args: argparse.Namespace):
@@ -116,6 +117,20 @@ def cmd_report(args: argparse.Namespace) -> None:
     print(f"  -> {out}/vehicle_summary.csv")
 
 
+def cmd_jasa_ablation1(args: argparse.Namespace) -> None:
+    """JASA week Ablation 1: env−10 dB×v → length_m vs wheelbase_m (LOVO)."""
+    features = Path(args.features) if args.features else Path(args.output_dir) / "features.csv"
+    out = Path(args.jasa_output_dir) if args.jasa_output_dir else Path(args.output_dir) / "jasa_week"
+    run_ablation1(features_path=features, output_dir=out)
+
+
+def cmd_jasa_week(args: argparse.Namespace) -> None:
+    """JASA week full pipeline: Ablation 1 → 2 → final Wb→L rule."""
+    features = Path(args.features) if args.features else Path(args.output_dir) / "features.csv"
+    out = Path(args.jasa_output_dir) if args.jasa_output_dir else Path(args.output_dir) / "jasa_week"
+    run_full_pipeline(features_path=features, output_dir=out)
+
+
 def cmd_phase_b(args: argparse.Namespace) -> None:
     """Deprecated wrapper — prefer: python -m length_estimation.train"""
     from length_estimation.config import PhaseBConfig
@@ -196,6 +211,29 @@ def build_parser() -> argparse.ArgumentParser:
     rpt.add_argument("--features", type=Path, default=None)
     rpt.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     rpt.set_defaults(func=cmd_report)
+
+    j1 = sub.add_parser(
+        "jasa-ablation1",
+        help="JASA week Ablation 1: LOVO length_m vs wheelbase_m (env−10 dB×v proxy)",
+    )
+    j1.add_argument("--features", type=Path, default=None)
+    j1.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    j1.add_argument(
+        "--jasa-output-dir",
+        type=Path,
+        default=None,
+        help="Override artifact dir (default: <output-dir>/jasa_week/)",
+    )
+    j1.set_defaults(func=cmd_jasa_ablation1)
+
+    jw = sub.add_parser(
+        "jasa-week",
+        help="JASA week full pipeline: Ablation 1 → 2 → final Wb→L LOVO rule",
+    )
+    jw.add_argument("--features", type=Path, default=None)
+    jw.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    jw.add_argument("--jasa-output-dir", type=Path, default=None)
+    jw.set_defaults(func=cmd_jasa_week)
 
     pb = sub.add_parser(
         "phase-b",

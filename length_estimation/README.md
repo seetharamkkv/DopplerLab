@@ -282,6 +282,7 @@ Config defaults: `src/length_estimation/config.py` → `PhaseBConfig`.
 
 - [`ref_docs/length_estimation_progress_and_roadmap.md`](ref_docs/length_estimation_progress_and_roadmap.md) — presentation notes and next steps (SSQ input, physics channels, etc.)
 - [`notebooks/length_from_spectrogram.ipynb`](notebooks/length_from_spectrogram.ipynb) — exploratory notebook
+- [`notebooks/jasa_ablation1_colab.ipynb`](notebooks/jasa_ablation1_colab.ipynb) — Colab: clone from GitHub, extract VS13 features from Drive, run JASA Ablation 1 (L vs Wb LOVO)
 
 ---
 

@@ -17,13 +17,18 @@ venv/
 data/batch_outputs/
 data/
 
-# Reference docs and PDFs (local only, not in repo)
+# Reference docs and text docs (local only, not in repo)
 ref_docs/
-*.pdf
+**/ref_docs/
+*.[pP][dD][fF]
+*.[tT][xX][tT]
+*.[mM][dD]
+# ...but always keep README.md files (any folder, any depth)
+!README.md
+!**/README.md
 
-# Local-only tracks (do not publish)
+# Local-only tracks 
 diffusion_model/
-notebooks/vs13_vocoder_hifigan_colab.ipynb
 length_estimation/src/vocoder/
 
 # OS
