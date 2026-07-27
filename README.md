@@ -85,7 +85,7 @@ DopplerLab/
 
 ## Authors
 
-**Seetharam Killivalavan & Rohith Arumugam Suresh**  
+**Seetharam Killivalavan**  
 School of Computer Science, Carnegie Mellon University
 
 ---
