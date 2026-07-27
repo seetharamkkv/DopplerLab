@@ -1,0 +1,38 @@
+# Experiments and artifacts
+experiments/
+outputs/
+!IDMT_experiments/outputs/
+!IDMT_experiments/outputs/**
+
+*.msgpack
+setup_cache/
+__pycache__/
+.venv/
+venv/
+*.pyc
+.ipynb_checkpoints/
+*.egg-info/
+.pytest_cache/
+**/.pytest_cache/
+
+# Local data symlinks / caches
+data/batch_outputs/
+data/
+
+# Reference docs and text docs (local only, not in repo)
+ref_docs/
+**/ref_docs/
+*.[pP][dD][fF]
+*.[tT][xX][tT]
+*.[mM][dD]
+# ...but always keep README.md files (any folder, any depth)
+!README.md
+!**/README.md
+
+# Local-only tracks 
+diffusion_model/
+length_estimation/src/vocoder/
+
+# OS
+.DS_Store
+Thumbs.db
