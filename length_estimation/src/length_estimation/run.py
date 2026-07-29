@@ -32,7 +32,7 @@ from length_estimation.src.preprocess import (
     resolve_data_dir,
     save_manifest,
 )
-from length_estimation.jasa_week import run_ablation1, run_full_pipeline
+from length_estimation.jasa_week import run_ablation1, run_full_pipeline, run_physics_length
 
 
 def _get_records(args: argparse.Namespace):
@@ -129,6 +129,13 @@ def cmd_jasa_week(args: argparse.Namespace) -> None:
     features = Path(args.features) if args.features else Path(args.output_dir) / "features.csv"
     out = Path(args.jasa_output_dir) if args.jasa_output_dir else Path(args.output_dir) / "jasa_week"
     run_full_pipeline(features_path=features, output_dir=out)
+
+
+def cmd_jasa_physics_length(args: argparse.Namespace) -> None:
+    """Direct, interpretable physics model for overall length under nested LOVO."""
+    features = Path(args.features) if args.features else Path(args.output_dir) / "features.csv"
+    out = Path(args.jasa_output_dir) if args.jasa_output_dir else Path(args.output_dir) / "jasa_week"
+    run_physics_length(features_path=features, output_dir=out)
 
 
 def cmd_phase_b(args: argparse.Namespace) -> None:
@@ -234,6 +241,15 @@ def build_parser() -> argparse.ArgumentParser:
     jw.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     jw.add_argument("--jasa-output-dir", type=Path, default=None)
     jw.set_defaults(func=cmd_jasa_week)
+
+    jpl = sub.add_parser(
+        "jasa-physics-length",
+        help="Direct physics-only length model: acoustic front/rear extents under nested LOVO",
+    )
+    jpl.add_argument("--features", type=Path, default=None)
+    jpl.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    jpl.add_argument("--jasa-output-dir", type=Path, default=None)
+    jpl.set_defaults(func=cmd_jasa_physics_length)
 
     pb = sub.add_parser(
         "phase-b",

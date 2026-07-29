@@ -8,6 +8,9 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import Ridge
+from sklearn.metrics import mean_absolute_error
+from sklearn.preprocessing import StandardScaler
 
 from length_estimation.config import DEFAULT_OUTPUT_DIR
 from length_estimation.src.evaluate import (
@@ -20,6 +23,11 @@ from length_estimation.src.evaluate import (
 ENV_PROXY = "env_10db_width_x_speed_m"
 DOPPLER_PROXY = "reassigned_doppler_transition_width_x_speed_m"
 REQUIRED_COLS = (ENV_PROXY, DOPPLER_PROXY, "length_m", "wheelbase_m", "vehicle", "clip_id")
+PHYSICS_LENGTH_FEATURES = (
+    "env_10db_rise_x_speed_m",
+    "env_10db_fall_x_speed_m",
+)
+PHYSICS_LENGTH_ALPHAS = (0.01, 0.1, 1.0, 10.0, 100.0)
 
 
 def load_features(features_path: Path | None = None) -> pd.DataFrame:
@@ -270,6 +278,168 @@ def final_wb_to_l(df: pd.DataFrame, wb_feature: str, *, out_dir: Path | None = N
         "preds": preds,
         "per_vehicle": per_veh,
     }
+
+
+def _add_physics_length_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Convert the pre/post envelope durations into travelled distances."""
+    required = ("env_10db_rise_s", "env_10db_fall_s", "speed_mps")
+    missing = [c for c in required if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing physics length inputs: {missing}")
+    out = df.copy()
+    out["env_10db_rise_x_speed_m"] = (
+        out["env_10db_rise_s"].astype(float) * out["speed_mps"].astype(float)
+    )
+    out["env_10db_fall_x_speed_m"] = (
+        out["env_10db_fall_s"].astype(float) * out["speed_mps"].astype(float)
+    )
+    return out
+
+
+def _vehicle_balanced_weights(df: pd.DataFrame) -> np.ndarray:
+    counts = df["vehicle"].value_counts()
+    return df["vehicle"].map(lambda v: 1.0 / float(counts[v])).to_numpy(dtype=float)
+
+
+def _raw_ridge_coefficients(
+    model: Ridge,
+    scaler: StandardScaler,
+    features: tuple[str, ...],
+) -> dict[str, float]:
+    coef = np.asarray(model.coef_, dtype=float) / scaler.scale_
+    intercept = float(model.intercept_ - np.sum(np.asarray(model.coef_) * scaler.mean_ / scaler.scale_))
+    return {"intercept_m": intercept, **{f"coef_{f}": float(v) for f, v in zip(features, coef)}}
+
+
+def _select_physics_alpha(
+    train: pd.DataFrame,
+    features: tuple[str, ...],
+) -> tuple[float, dict[str, float]]:
+    """Nested vehicle-wise CV on the outer-fold training vehicles only."""
+    scores: dict[str, float] = {}
+    for alpha in PHYSICS_LENGTH_ALPHAS:
+        vehicle_maes: list[float] = []
+        for _, inner_train_idx, inner_valid_idx in lovo_splits(train):
+            inner_train = train.loc[inner_train_idx]
+            inner_valid = train.loc[inner_valid_idx]
+            scaler = StandardScaler().fit(inner_train[list(features)].astype(float))
+            model = Ridge(alpha=alpha).fit(
+                scaler.transform(inner_train[list(features)].astype(float)),
+                inner_train["length_m"].astype(float),
+                sample_weight=_vehicle_balanced_weights(inner_train),
+            )
+            pred = model.predict(scaler.transform(inner_valid[list(features)].astype(float)))
+            vehicle_maes.append(
+                float(mean_absolute_error(inner_valid["length_m"].astype(float), pred))
+            )
+        scores[str(alpha)] = float(np.mean(vehicle_maes))
+    winner = min(PHYSICS_LENGTH_ALPHAS, key=lambda a: scores[str(a)])
+    return float(winner), scores
+
+
+def physics_length_model(
+    df: pd.DataFrame,
+    *,
+    out_dir: Path | None = None,
+) -> dict[str, Any]:
+    """Direct, interpretable length model from front/rear acoustic travel extents."""
+    data = _add_physics_length_features(df).reset_index(drop=True)
+    out = Path(out_dir) if out_dir else DEFAULT_OUTPUT_DIR / "jasa_week"
+    out.mkdir(parents=True, exist_ok=True)
+    features = PHYSICS_LENGTH_FEATURES
+
+    pred_rows: list[dict[str, Any]] = []
+    coefficient_rows: list[dict[str, Any]] = []
+    for vehicle, train_idx, test_idx in lovo_splits(data):
+        train = data.loc[train_idx]
+        test = data.loc[test_idx]
+        alpha, inner_scores = _select_physics_alpha(train.reset_index(drop=True), features)
+
+        scaler = StandardScaler().fit(train[list(features)].astype(float))
+        model = Ridge(alpha=alpha).fit(
+            scaler.transform(train[list(features)].astype(float)),
+            train["length_m"].astype(float),
+            sample_weight=_vehicle_balanced_weights(train),
+        )
+        pred = model.predict(scaler.transform(test[list(features)].astype(float)))
+        raw_coef = _raw_ridge_coefficients(model, scaler, features)
+        coefficient_rows.append(
+            {
+                "held_out_vehicle": vehicle,
+                "alpha": alpha,
+                **raw_coef,
+                **{f"inner_mae_alpha_{a}": inner_scores[str(a)] for a in PHYSICS_LENGTH_ALPHAS},
+            }
+        )
+        for i, (_, row) in enumerate(test.iterrows()):
+            pred_rows.append(
+                {
+                    "clip_id": row["clip_id"],
+                    "vehicle": vehicle,
+                    "y_true": float(row["length_m"]),
+                    "y_pred": float(pred[i]),
+                    "abs_error": float(abs(pred[i] - row["length_m"])),
+                    **{feature: float(row[feature]) for feature in features},
+                }
+            )
+
+    preds = pd.DataFrame(pred_rows)
+    coefficients = pd.DataFrame(coefficient_rows)
+    target_range = float(data["length_m"].max() - data["length_m"].min())
+    metrics = regression_metrics(
+        preds["y_true"].to_numpy(dtype=float),
+        preds["y_pred"].to_numpy(dtype=float),
+        target_range,
+    )
+    mean_mae, _ = _mean_baseline_lovo(data, "length_m")
+    per_vehicle = (
+        preds.groupby("vehicle", as_index=False)
+        .agg(n=("clip_id", "count"), mae=("abs_error", "mean"))
+        .sort_values("mae")
+    )
+    bunching = bunching_diagnostics(preds, data, target_col="length_m")
+    beats_mean = metrics["mae"] + 1e-9 < mean_mae
+    summary = {
+        "target": "length_m",
+        "model": "vehicle-balanced nested-LOVO Ridge on acoustic front/rear extents",
+        "formula": (
+            "L_hat = a + b_front*(speed*env_10db_rise_s) "
+            "+ b_rear*(speed*env_10db_fall_s)"
+        ),
+        "features": list(features),
+        "alpha_grid": list(PHYSICS_LENGTH_ALPHAS),
+        "metrics": metrics,
+        "mean_baseline_mae": mean_mae,
+        "beats_mean": beats_mean,
+        "bunching": bunching,
+        "decision": (
+            "KEEP as a direct physics length model."
+            if beats_mean
+            else "FAILS mean baseline; report as negative physics result, not a working length estimator."
+        ),
+        "n_clips": int(len(data)),
+        "n_vehicles": int(data["vehicle"].nunique()),
+    }
+    preds.to_csv(out / "physics_length_preds.csv", index=False)
+    coefficients.to_csv(out / "physics_length_coefficients.csv", index=False)
+    per_vehicle.to_csv(out / "physics_length_per_vehicle.csv", index=False)
+    (out / "physics_length_summary.json").write_text(
+        json.dumps(summary, indent=2), encoding="utf-8"
+    )
+    return summary
+
+
+def run_physics_length(
+    features_path: Path | None = None,
+    output_dir: Path | None = None,
+) -> dict[str, Any]:
+    df = load_features(features_path)
+    out = Path(output_dir) if output_dir else DEFAULT_OUTPUT_DIR / "jasa_week"
+    result = physics_length_model(df, out_dir=out)
+    print("=== Direct physics length model ===")
+    print(json.dumps(result, indent=2))
+    print(f"Artifacts under {out}")
+    return result
 
 
 def run_ablation1(

@@ -12,10 +12,18 @@ venv/
 *.pyc
 .ipynb_checkpoints/
 *.egg-info/
+.pytest_cache/
+**/.pytest_cache/
 
 # Local data symlinks / caches
 data/batch_outputs/
 data/
+
+# Audio (never commit recordings)
+*.wav
+*.WAV
+**/*.wav
+**/*.WAV
 
 # Reference docs and text docs (local only, not in repo)
 ref_docs/

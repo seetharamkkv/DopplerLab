@@ -2,9 +2,9 @@
 
 Estimate **overall vehicle length** (metres) from a **single-microphone pass-by recording**, using the **VS13 dataset only**. This package is not a general-purpose length estimator — models, splits, and ground-truth lengths are all tied to VS13’s 13 vehicles and 400 annotated clips.
 
-**Question:** Can a CPA-centred log-mel spectrogram (+ speed) predict length for a car the model has never seen?
+**Question:** Can pass-by audio, optionally represented as spectrograms or physics-derived timing features and paired with speed / CPA alignment metadata, predict overall length for a car the model has never seen?
 
-**Approach:** Two phases — hand-crafted physics features (Phase A) and a PyTorch CNN (Phase B).
+**Approach:** two complementary tracks — interpretable physics / rule-based features (Phase A) and learned audio models (Phase B). The prediction target is always overall vehicle length (`length_m`); wheelbase is only an intermediate diagnostic if it helps explain the audio geometry.
 
 ---
 
@@ -90,7 +90,7 @@ Three protocols are used. **LOVO is the only one that tests generalisation to an
 - Phase A: Ridge / RF / physics affine models per fold.
 - Phase B: one CNN per fold → `fold_{VehicleName}.pt`.
 - **At eval time:** Mazda3 clips use `fold_Mazda3.pt` (never trained on Mazda3). Kia clips use `fold_KiaSportage.pt`, etc.
-- Models receive **spectrogram + speed only** — no vehicle ID.
+- Learned models receive audio-derived representations (for example log-mel / SSQ spectrograms) plus speed; rule-based models receive handcrafted timing / Doppler features. No model receives vehicle ID.
 
 This answers: *“Can we predict length for a car whose clips were not in training?”*
 
@@ -121,6 +121,9 @@ python -m length_estimation.run features
 
 # 3. LOVO regression + report
 python -m length_estimation.run phase-a
+
+# Direct interpretable overall-length test (nested strict LOVO)
+python -m length_estimation.run jasa-physics-length
 ```
 
 **Reports:** `length_estimation/outputs/phase_a/`
@@ -213,7 +216,10 @@ Metrics below are from completed runs on VS13. Do not extrapolate to other fleet
 | Best physics affine | 0.236 m | Reassigned Doppler width × speed |
 | Verdict | At baseline | Hand-crafted features do not generalise length |
 
-Phase A **wheelbase** LOVO (0.096 m) beats its baseline — envelope duration tracks axle spacing better than overall length. Length prediction targets `length_m` only.
+Phase A **wheelbase** LOVO (0.096 m) beats its baseline — envelope duration tracks axle spacing better than overall length. The derived \(W_b \to L\) rule is interpretable but weak for final length (about 0.255 m MAE), so it should be treated as a physics baseline rather than the end model. Length prediction targets `length_m` only.
+
+The final direct physics-only length test uses front/rear −10 dB envelope travel extents,
+\(\hat L=a+b_f(v\Delta t_\mathrm{rise})+b_r(v\Delta t_\mathrm{fall})\), with vehicle-balanced Ridge and nested vehicle-wise tuning. It reaches **0.237 m** LOVO MAE versus the **0.235 m** mean baseline (\(R^2=-0.175\)); therefore it fails the acceptance criterion and is retained as a negative result, not a working overall-length estimator.
 
 ### Phase B — CNN valid split (`mel_length_20260616_004732`)
 

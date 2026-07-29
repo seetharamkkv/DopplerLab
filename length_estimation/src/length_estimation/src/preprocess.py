@@ -58,7 +58,12 @@ def resolve_data_dir(data_dir: Path | None = None) -> Path:
 
 
 def load_vehicle_specs(specs_path: Path | None = None) -> pd.DataFrame:
-    path = specs_path or DEFAULT_SPECS_PATH
+    path = Path(specs_path) if specs_path is not None else DEFAULT_SPECS_PATH
+    if not path.is_file():
+        raise FileNotFoundError(
+            f"Vehicle specs not found: {path}\n"
+            "Expected length_estimation/data/vehicle_specs.csv in the cloned repo."
+        )
     df = pd.read_csv(path)
     return df.set_index("short_name")
 

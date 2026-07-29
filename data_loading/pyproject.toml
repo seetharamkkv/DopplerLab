@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "passby_data"
+version = "0.1.0"
+description = "Leakage-aware pass-by audio data loading and splits for DopplerLab models"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy",
+  "librosa",
+  "scikit-learn",
+]
+
+[project.scripts]
+passby-make-split = "passby_data.cli:make_split_main"
+passby-make-lovo = "passby_data.cli:make_lovo_main"
+passby-make-spread = "passby_data.cli:make_spread_scene_main"
+passby-verify-leakage = "passby_data.cli:verify_main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["passby_data*"]
