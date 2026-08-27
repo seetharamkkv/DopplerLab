@@ -1,44 +1,77 @@
-# Experiments and artifacts
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+~$*
+*.swp
+*.swo
+
+# Local environments and secrets
+.env
+.env.*
+!.env.example
+
+# Data (never commit recordings or raw corpora)
+data/
+**/data/
+*.wav
+*.WAV
+*.flac
+*.mp3
+*.avi
+*.mp4
+*.zip
+*.zip.*
+
+# Model weights (keep JSON sidecars; weights stay local)
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+*.joblib
+*.pkl
+
+# Run artifacts
 experiments/
 outputs/
+**/outputs/
+*.log
+*.msgpack
+setup_cache/
+
+# Allow tracked eval outputs for IDMT (metrics only; no weights)
 !IDMT_experiments/outputs/
 !IDMT_experiments/outputs/**
 
-*.msgpack
-setup_cache/
-__pycache__/
-.venv/
-venv/
-*.pyc
-.ipynb_checkpoints/
-*.egg-info/
-.pytest_cache/
-**/.pytest_cache/
-
-# Local data symlinks / caches
-data/batch_outputs/
-data/
-
-# Audio (never commit recordings)
-*.wav
-*.WAV
-**/*.wav
-**/*.WAV
-
-# Reference docs and text docs (local only, not in repo)
+# Local docs and drafts (keep README.md)
 ref_docs/
 **/ref_docs/
-*.[pP][dD][fF]
-*.[tT][xX][tT]
-*.[mM][dD]
-# ...but always keep README.md files (any folder, any depth)
+*.pdf
+*.PDF
+*.txt
+*.md
 !README.md
 !**/README.md
 
-# Local-only tracks 
+# Local-only / heavy tracks
 diffusion_model/
 length_estimation/src/vocoder/
-
-# OS
-.DS_Store
-Thumbs.db
+engine_acoustics/dataset/
+IDMT_experiments/IDMT_Traffic/
+speed_estimation/vs13/

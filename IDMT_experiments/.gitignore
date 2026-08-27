@@ -1,26 +1,21 @@
-# IDMT-Traffic raw audio + annotations on disk (~10+ GB) — download from Zenodo locally
+# Raw IDMT-Traffic corpus (download from Zenodo locally)
 IDMT_Traffic/
 
-# CNN checkpoints (weights only); configs/history/summaries under checkpoints/ are tracked
+# Final weights stay on disk but are not committed
 checkpoints/**/*.pt
+checkpoints/**/*.joblib
+checkpoints/**/last.pt
 
-# Local training / eval noise
+# Training / eval noise
 outputs/**/*.log
 outputs/**/_run_eval.*
 
-# Local manual test clips and generated prediction sheets
-test/data/*.wav
-test/data/**/*.wav
-test/data/*.avi
-test/data/**/*.avi
-test/data/metadata.txt
+# Local manual test clips and prediction sheets
+test/data/
 test/predictions.csv
-test/outputs/predictions.csv
-test/outputs/predictions_summary.json
-test/outputs/*.png
-test/outputs/**/*.png
+test/outputs/
 
-# Python packaging / caches
+# Python
 *.egg-info/
 __pycache__/
 .ipynb_checkpoints/
