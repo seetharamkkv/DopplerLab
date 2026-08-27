@@ -32,6 +32,7 @@ Simulated data supports the full breadth of these tasks. Real datasets implement
 
 | Track | Focus | Status |
 |-------|--------|--------|
+| [traj_reconstruction](traj_reconstruction/) | Sim-only: observer-centered trajectory orbit from DopplerSim Phase 1 / freehand | Active (Phase 0) |
 | [IDMT_experiments](IDMT_experiments/) | Real traffic audio: direction, vehicle type, splits, baselines | Active |
 | [length_estimation](length_estimation/) | VS13: vehicle length from a single mic | Active |
 | [speed_estimation](speed_estimation/) | VS13 physics Ridge speed; simulated multi-task notebooks | Active |
@@ -44,6 +45,7 @@ Local planning notes, manuscript drafts, and figures live under `ref_docs/` (git
 
 ```
 DopplerLab/
+├── traj_reconstruction/  # sim-only trajectory orbit (Phase 0+)
 ├── IDMT_experiments/
 ├── length_estimation/
 ├── speed_estimation/
