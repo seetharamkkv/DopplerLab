@@ -20,6 +20,7 @@ import json
 from pathlib import Path
 
 from traj_reconstruction import load_phase1_sample
+from traj_reconstruction.paths import default_learned_checkpoint
 from traj_reconstruction.product import export_orbit_product, predict_orbit
 
 
@@ -27,8 +28,13 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--phase1", type=Path, default=None)
     p.add_argument("--wav", type=Path, default=None)
-    p.add_argument("--method", choices=("flexible", "parametric", "mlp"), default="flexible")
-    p.add_argument("--checkpoint", type=Path, default=None)
+    p.add_argument("--method", choices=("flexible", "parametric", "mlp", "cnn", "seq"), default="flexible")
+    p.add_argument(
+        "--checkpoint",
+        type=Path,
+        default=None,
+        help="MLP best-weights file (default: live best checkpoint under traj_reconstruction/checkpoints)",
+    )
     p.add_argument("--out", type=Path, default=Path("outputs/orbit_product"))
     p.add_argument("--scale-ambiguous", action="store_true")
     args = p.parse_args()
@@ -44,19 +50,25 @@ def main() -> None:
     if wav is None and stft is None:
         raise SystemExit("provide --phase1 or --wav")
 
+    ckpt = args.checkpoint
+    if args.method in ("mlp", "cnn", "seq") and ckpt is None:
+        ckpt = default_learned_checkpoint()
+
     print("Building orbit product from audio only (SIMULATED demo OK)…")
+    if args.method in ("mlp", "cnn", "seq"):
+        print(f"loading live best checkpoint: {ckpt}")
     if wav is not None:
         product = predict_orbit(
             wav_path=wav,
             method=args.method,
-            mlp_checkpoint=args.checkpoint,
+            mlp_checkpoint=ckpt,
             scale_ambiguous=args.scale_ambiguous,
         )
     else:
         product = predict_orbit(
             stft_db=stft,
             method=args.method,
-            mlp_checkpoint=args.checkpoint,
+            mlp_checkpoint=ckpt,
             scale_ambiguous=args.scale_ambiguous,
         )
 

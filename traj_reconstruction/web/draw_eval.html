@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Draw → Generate → Predict</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --ink: #e7eef7;
+      --muted: #9db0c7;
+      --accent: #3dbb9a;
+      --warn: #e0a454;
+      --err: #f07178;
+      --line: #2a3b52;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(1200px 700px at 15% 0%, #1b2a3d, var(--bg));
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    header {
+      padding: 1rem 1.25rem 0.5rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    h1 { font-size: 1.25rem; font-weight: 600; margin: 0 0 0.25rem; }
+    .sub { color: var(--muted); font-size: 0.9rem; margin: 0; }
+    .banner {
+      margin-top: 0.75rem;
+      padding: 0.55rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      background: #243247;
+      color: #d7e4f5;
+    }
+    .banner.train { border-left: 3px solid var(--warn); }
+    .banner.ready { border-left: 3px solid var(--accent); }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0.75rem 1.25rem 1.5rem;
+    }
+    @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+    .col {
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+      min-height: 640px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    h2 { font-size: 1.02rem; margin: 0; font-weight: 600; }
+    .hint { color: var(--muted); font-size: 0.8rem; margin: 0; }
+    canvas.board { width: 100%; height: auto; background: #fff; border-radius: 8px; cursor: crosshair; touch-action: none; display: block; }
+    canvas.pred { width: 100%; height: auto; background: #0c1118; border-radius: 8px; display: block; }
+    .row { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
+    button, .btn {
+      background: var(--accent); color: #06241c; border: 0; border-radius: 8px;
+      padding: 0.5rem 0.85rem; font-weight: 600; cursor: pointer; font-size: 0.85rem;
+    }
+    button.ghost { background: #2a3b52; color: var(--ink); }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    input, select { background: #0c1118; color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 0.4rem 0.5rem; font-size: 0.9rem; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .status {
+      border-radius: 8px;
+      background: #132033;
+      padding: 0.65rem 0.75rem;
+      min-height: 3.2rem;
+    }
+    .status .msg { font-size: 0.9rem; }
+    .bar { height: 7px; background: #2a3b52; border-radius: 99px; margin-top: 0.45rem; overflow: hidden; }
+    .bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.25s ease; }
+    .log { font-size: 0.75rem; color: var(--muted); max-height: 7.5rem; overflow: auto; line-height: 1.45; }
+    .log div { border-bottom: 1px solid #243247; padding: 0.15rem 0; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .metric { background: #132033; border-radius: 8px; padding: 0.55rem 0.65rem; }
+    .metric b { display: block; font-size: 1.05rem; color: var(--accent); }
+    .metric span { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .err { color: var(--err); }
+    audio { width: 100%; }
+    img.overlay { width: 100%; border-radius: 8px; background: #0c1118; display: none; }
+    .placeholder { color: var(--muted); font-size: 0.9rem; padding: 1.5rem 0.5rem; text-align: center; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>2D whiteboard → generated audio → orbit prediction</h1>
+  <p class="sub">Left: DopplerSim path2d pass-by synthesis. Right: pick a model and run inference (audio / STFT only).</p>
+  <div id="banner" class="banner ready">Loading checkpoint status…</div>
+</header>
+<form id="form" class="layout">
+  <section class="col">
+    <h2>Left — draw &amp; generate WAV</h2>
+    <p class="hint">Same retarded-time path2d pipeline as the 2D Path Board. Mic is the black cross.</p>
+    <div class="grid2">
+      <label>Source clip
+        <select id="source_name" name="source_name"></select>
+      </label>
+      <label>Or upload WAV
+        <input id="audio_file" name="audio_file" type="file" accept=".wav,audio/wav"/>
+      </label>
+    </div>
+    <div class="grid3">
+      <label>Invert v₁ (km/h)<input id="v1" name="v1" type="number" step="any" value="47"/></label>
+      <label>Invert h₁ (m)<input id="h1" name="h1" type="number" step="any" value="0.5"/></label>
+      <label>Invert t_CPA₁ (s)<input id="t_cpa1" name="t_cpa1" type="number" step="any" value="5.28"/></label>
+    </div>
+    <div class="row">
+      <button type="button" class="ghost" id="clear">Clear path</button>
+      <button type="button" class="ghost" id="undo">Undo stroke</button>
+      <span id="path-stats" class="hint">Path length: 0.0 m</span>
+    </div>
+    <canvas id="board" class="board" width="900" height="640"></canvas>
+    <div class="grid3">
+      <label>Speed along path v₂ (km/h)<input id="v2" name="v2" type="number" step="any" value="54"/></label>
+      <label>Mic x (m)<input id="mic_x" name="mic_x" type="number" step="any" value="0"/></label>
+      <label>Mic y (m)<input id="mic_y" name="mic_y" type="number" step="any" value="0"/></label>
+    </div>
+    <div class="grid2">
+      <label>Vehicle length (m)<input id="vehicle_length" name="vehicle_length" type="number" step="any" value="4.5"/></label>
+      <label>Emitters<input id="num_emitters" name="num_emitters" type="number" min="1" step="1" value="1"/></label>
+    </div>
+    <input type="hidden" name="path_json" id="path_json"/>
+    <input type="hidden" name="speed_unit" value="kmph"/>
+    <button type="submit" id="go">Generate audio &amp; predict</button>
+    <div class="status" id="left-status">
+      <div class="msg" id="left-msg">Draw a path, then generate. Audio synthesis can take 10–40s.</div>
+      <div class="bar"><i id="left-bar"></i></div>
+    </div>
+    <div class="log" id="left-log"></div>
+    <audio id="player" controls hidden></audio>
+  </section>
+
+  <section class="col">
+    <h2 id="pred-title">Right — prediction</h2>
+    <p class="hint" id="pred-hint">Choose a trained checkpoint or the physics fit. Heading is an orbit family — prediction is rotated/mirrored onto the drawn path before scoring.</p>
+    <label>Inference model
+      <select id="model" name="model"></select>
+    </label>
+    <canvas id="pred" class="pred" width="900" height="640"></canvas>
+    <img id="overlay" class="overlay" alt="GT vs predicted overlay"/>
+    <div class="metrics" id="metrics"></div>
+    <div class="status" id="right-status">
+      <div class="msg" id="right-msg">Waiting for generated audio…</div>
+      <div class="bar"><i id="right-bar"></i></div>
+    </div>
+    <div class="log" id="right-log"></div>
+  </section>
+</form>
+<script>
+const WORLD = { xmin: -80, xmax: 80, ymin: -40, ymax: 45 };
+const PAD = { l: 52, r: 18, t: 18, b: 42 };
+const board = document.getElementById("board");
+const pred = document.getElementById("pred");
+const ctx = board.getContext("2d");
+const pctx = pred.getContext("2d");
+const pathInput = document.getElementById("path_json");
+const statsEl = document.getElementById("path-stats");
+const micXEl = document.getElementById("mic_x");
+const micYEl = document.getElementById("mic_y");
+const sourceSel = document.getElementById("source_name");
+const modelSel = document.getElementById("model");
+let modelCatalog = [];
+let strokes = [];
+let drawing = false;
+let current = null;
+let pollTimer = null;
+
+function plotRect(c) {
+  return { x: PAD.l, y: PAD.t, w: c.width - PAD.l - PAD.r, h: c.height - PAD.t - PAD.b };
+}
+function worldToCanvas(c, wx, wy) {
+  const p = plotRect(c);
+  return [p.x + ((wx - WORLD.xmin) / (WORLD.xmax - WORLD.xmin)) * p.w,
+          p.y + ((WORLD.ymax - wy) / (WORLD.ymax - WORLD.ymin)) * p.h];
+}
+function canvasToWorld(c, cx, cy) {
+  const p = plotRect(c);
+  const wx = WORLD.xmin + ((cx - p.x) / p.w) * (WORLD.xmax - WORLD.xmin);
+  const wy = WORLD.ymax - ((cy - p.y) / p.h) * (WORLD.ymax - WORLD.ymin);
+  return {
+    x: Math.min(WORLD.xmax, Math.max(WORLD.xmin, wx)),
+    y: Math.min(WORLD.ymax, Math.max(WORLD.ymin, wy)),
+  };
+}
+function eventWorld(ev) {
+  const rect = board.getBoundingClientRect();
+  const scaleX = board.width / rect.width;
+  const scaleY = board.height / rect.height;
+  return canvasToWorld(board, (ev.clientX - rect.left) * scaleX, (ev.clientY - rect.top) * scaleY);
+}
+function flatPoints() {
+  const out = [];
+  for (const stroke of strokes) for (const p of stroke) out.push(p);
+  return out;
+}
+function pathLengthM() {
+  const pts = flatPoints();
+  let L = 0;
+  for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i].x - pts[i-1].x, pts[i].y - pts[i-1].y);
+  return L;
+}
+function drawAxes(c, g, world) {
+  const p = plotRect(c);
+  g.fillStyle = c === board ? "#ffffff" : "#0c1118";
+  g.fillRect(0, 0, c.width, c.height);
+  g.save();
+  g.beginPath(); g.rect(p.x, p.y, p.w, p.h); g.clip();
+  g.strokeStyle = c === board ? "#e2e8f0" : "#1e2a3a"; g.lineWidth = 1;
+  for (let x = Math.ceil(world.xmin / 10) * 10; x <= world.xmax; x += 10) {
+    const [cx] = worldToCanvas(c, x, 0);
+    g.beginPath(); g.moveTo(cx, p.y); g.lineTo(cx, p.y + p.h); g.stroke();
+  }
+  for (let y = Math.ceil(world.ymin / 10) * 10; y <= world.ymax; y += 10) {
+    const [, cy] = worldToCanvas(c, 0, y);
+    g.beginPath(); g.moveTo(p.x, cy); g.lineTo(p.x + p.w, cy); g.stroke();
+  }
+  g.strokeStyle = c === board ? "#64748b" : "#94a3b8"; g.lineWidth = 1.4;
+  const [ox, oy] = worldToCanvas(c, 0, 0);
+  g.beginPath(); g.moveTo(p.x, oy); g.lineTo(p.x + p.w, oy); g.stroke();
+  g.beginPath(); g.moveTo(ox, p.y); g.lineTo(ox, p.y + p.h); g.stroke();
+  g.restore();
+  g.fillStyle = c === board ? "#334155" : "#9db0c7";
+  g.font = "12px ui-sans-serif, system-ui, sans-serif";
+  g.textAlign = "center"; g.textBaseline = "top";
+  for (let x = Math.ceil(world.xmin / 20) * 20; x <= world.xmax; x += 20) {
+    const [cx] = worldToCanvas(c, x, 0); g.fillText(String(x), cx, p.y + p.h + 8);
+  }
+  g.fillText("x (m)", p.x + p.w / 2, c.height - 16);
+}
+function drawBoard() {
+  drawAxes(board, ctx, WORLD);
+  const micX = parseFloat(micXEl.value) || 0;
+  const micY = parseFloat(micYEl.value) || 0;
+  const [mx, my] = worldToCanvas(board, micX, micY);
+  ctx.strokeStyle = "#111827"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(mx - 8, my); ctx.lineTo(mx + 8, my); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(mx, my - 8); ctx.lineTo(mx, my + 8); ctx.stroke();
+  ctx.fillStyle = "#111827"; ctx.font = "11px ui-sans-serif, system-ui, sans-serif";
+  ctx.textAlign = "left"; ctx.textBaseline = "bottom"; ctx.fillText("mic", mx + 10, my - 4);
+  ctx.lineJoin = "round"; ctx.lineCap = "round"; ctx.strokeStyle = "#1d4ed8"; ctx.lineWidth = 2.5;
+  for (const stroke of strokes) {
+    if (stroke.length < 2) continue;
+    ctx.beginPath();
+    const [sx, sy] = worldToCanvas(board, stroke[0].x, stroke[0].y);
+    ctx.moveTo(sx, sy);
+    for (let i = 1; i < stroke.length; i++) {
+      const [px, py] = worldToCanvas(board, stroke[i].x, stroke[i].y);
+      ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  const pts = flatPoints();
+  if (pts.length) {
+    const [sx, sy] = worldToCanvas(board, pts[0].x, pts[0].y);
+    const [ex, ey] = worldToCanvas(board, pts[pts.length - 1].x, pts[pts.length - 1].y);
+    ctx.fillStyle = "#16a34a"; ctx.beginPath(); ctx.arc(sx, sy, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#dc2626"; ctx.beginPath(); ctx.arc(ex, ey, 5, 0, Math.PI * 2); ctx.fill();
+  }
+  statsEl.textContent = "Path length: " + pathLengthM().toFixed(1) + " m";
+}
+function drawEmptyPred() {
+  drawAxes(pred, pctx, WORLD);
+  pctx.fillStyle = "#9db0c7";
+  pctx.font = "16px ui-sans-serif";
+  pctx.textAlign = "center";
+  pctx.fillText("Prediction appears here after generate", pred.width / 2, pred.height / 2);
+}
+function drawResult(res) {
+  const gt = res.gt_xy, al = res.aligned_xy;
+  drawAxes(pred, pctx, WORLD);
+  const micX = parseFloat(micXEl.value) || 0;
+  const micY = parseFloat(micYEl.value) || 0;
+  const [mx, my] = worldToCanvas(pred, micX, micY);
+  pctx.fillStyle = "#e0a454";
+  pctx.beginPath(); pctx.arc(mx, my, 6, 0, Math.PI * 2); pctx.fill();
+  function strokePts(pts, color, width, dash) {
+    if (!pts || pts.length < 2) return;
+    pctx.save();
+    pctx.strokeStyle = color; pctx.lineWidth = width;
+    pctx.setLineDash(dash || []);
+    pctx.beginPath();
+    const [x0, y0] = worldToCanvas(pred, pts[0][0], pts[0][1]);
+    pctx.moveTo(x0, y0);
+    for (let i = 1; i < pts.length; i++) {
+      const [x, y] = worldToCanvas(pred, pts[i][0], pts[i][1]);
+      pctx.lineTo(x, y);
+    }
+    pctx.stroke();
+    pctx.restore();
+  }
+  strokePts(gt, "#94a3b8", 2.2, [7, 5]);
+  strokePts(al, "#3dbb9a", 3, []);
+  pctx.fillStyle = "#9db0c7"; pctx.font = "12px ui-sans-serif"; pctx.textAlign = "left";
+  pctx.fillText("dashed = drawn GT   solid = orbit-aligned pred", 60, 28);
+}
+
+board.addEventListener("pointerdown", (ev) => {
+  ev.preventDefault(); drawing = true; current = []; strokes.push(current);
+  current.push(eventWorld(ev)); board.setPointerCapture(ev.pointerId); drawBoard();
+});
+board.addEventListener("pointermove", (ev) => {
+  if (!drawing || !current) return;
+  ev.preventDefault();
+  const w = eventWorld(ev);
+  const last = current[current.length - 1];
+  if (Math.hypot(w.x - last.x, w.y - last.y) < 0.2) return;
+  current.push(w); drawBoard();
+});
+function pointerUp(ev) {
+  if (!drawing) return;
+  drawing = false; current = null;
+  try { board.releasePointerCapture(ev.pointerId); } catch (_) {}
+  drawBoard();
+}
+board.addEventListener("pointerup", pointerUp);
+board.addEventListener("pointercancel", pointerUp);
+document.getElementById("clear").onclick = () => { strokes = []; drawBoard(); };
+document.getElementById("undo").onclick = () => { strokes.pop(); drawBoard(); };
+micXEl.addEventListener("input", drawBoard);
+micYEl.addEventListener("input", drawBoard);
+
+function setBar(id, pct) { document.getElementById(id).style.width = Math.max(0, Math.min(100, pct)) + "%"; }
+function renderLog(el, lines, predOnly) {
+  const genStages = new Set(["queued","load_source","invert","synthesize","phase1"]);
+  const predStages = new Set(["predict","done","error"]);
+  el.innerHTML = (lines || []).map((l) => {
+    const msg = typeof l === "string" ? l : l.msg;
+    return "<div>" + msg + "</div>";
+  }).join("");
+  el.scrollTop = el.scrollHeight;
+}
+function leftPercent(job) {
+  const stage = job.stage || "";
+  if (stage === "predict" || stage === "done") return 100;
+  return Math.min(job.percent || 0, 75);
+}
+function rightPercent(job) {
+  const stage = job.stage || "";
+  if (stage === "queued" || stage === "load_source" || stage === "invert" || stage === "synthesize") return 0;
+  if (stage === "phase1") return 15;
+  if (stage === "predict") return Math.max(40, job.percent || 40);
+  if (stage === "done") return 100;
+  if (stage === "error") return 100;
+  return job.percent || 0;
+}
+
+function applyJob(job) {
+  const leftMsg = document.getElementById("left-msg");
+  const rightMsg = document.getElementById("right-msg");
+  const go = document.getElementById("go");
+  const player = document.getElementById("player");
+  go.disabled = !!job.running;
+  setBar("left-bar", leftPercent(job));
+  setBar("right-bar", rightPercent(job));
+  renderLog(document.getElementById("left-log"), job.log);
+  renderLog(document.getElementById("right-log"), job.log);
+
+  if (job.stage === "error") {
+    leftMsg.innerHTML = "<span class='err'>" + job.message + "</span>";
+    rightMsg.innerHTML = "<span class='err'>Prediction did not run.</span>";
+    return;
+  }
+  if (job.wav_ready || job.stage === "phase1" || job.stage === "predict" || job.stage === "done") {
+    player.hidden = false;
+    player.src = "/api/jobs/" + job.id + "/audio.wav?t=" + Date.now();
+  }
+  if (job.stage === "done" && job.result) {
+    leftMsg.textContent = "WAV ready (" + job.result.duration_s.toFixed(2) + " s).";
+    rightMsg.textContent = "Prediction complete" +
+      (job.result.model && job.result.model.label ? " · " + job.result.model.label : "") + ".";
+    drawResult(job.result);
+    const m = job.result.metrics;
+    document.getElementById("metrics").innerHTML = [
+      ["Orbit RMS", m.orbit_rms_m.toFixed(2) + " m"],
+      ["Length-norm RMS", (100 * m.orbit_len_norm).toFixed(1) + " %"],
+      ["CPA GT / pred", m.cpa_gt_m.toFixed(1) + " / " + m.cpa_pred_m.toFixed(1) + " m"],
+      ["CPA relative err", (100 * m.cpa_rel_err).toFixed(1) + " %"],
+      ["Speed GT / pred", m.speed_gt_mps.toFixed(2) + " / " + m.speed_pred_mps.toFixed(2) + " m/s"],
+      ["Speed relative err", (100 * m.speed_rel_err).toFixed(1) + " %"],
+    ].map(([k,v]) => "<div class='metric'><span>" + k + "</span><b>" + v + "</b></div>").join("");
+    const img = document.getElementById("overlay");
+    img.style.display = "block";
+    img.src = "/api/jobs/" + job.id + "/overlay.png?t=" + Date.now();
+  } else if (job.running) {
+    const gen = ["queued","load_source","invert","synthesize","phase1"].includes(job.stage);
+    leftMsg.textContent = gen ? job.message : "Audio written. Waiting on model…";
+    rightMsg.textContent = (job.stage === "predict") ? job.message : "Waiting for generated audio…";
+  }
+}
+
+async function poll(id) {
+  const r = await fetch("/api/jobs/" + id);
+  const job = await r.json();
+  applyJob(job);
+  if (job.running) pollTimer = setTimeout(() => poll(id), 450);
+}
+
+document.getElementById("form").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const pts = flatPoints();
+  if (pts.length < 2) { alert("Draw a path with at least two points first."); return; }
+  pathInput.value = JSON.stringify(pts.map((p) => ({ x: +p.x.toFixed(4), y: +p.y.toFixed(4) })));
+  if (pollTimer) clearTimeout(pollTimer);
+  document.getElementById("go").disabled = true;
+  document.getElementById("left-msg").textContent = "Starting generation…";
+  document.getElementById("right-msg").textContent = "Waiting for generated audio…";
+  document.getElementById("metrics").innerHTML = "";
+  document.getElementById("overlay").style.display = "none";
+  drawEmptyPred();
+  const fd = new FormData(document.getElementById("form"));
+  const r = await fetch("/api/jobs", { method: "POST", body: fd });
+  const data = await r.json();
+  if (!r.ok) {
+    document.getElementById("left-msg").innerHTML = "<span class='err'>" + (data.error || "request failed") + "</span>";
+    document.getElementById("go").disabled = false;
+    return;
+  }
+  poll(data.id);
+});
+
+function selectedModel() {
+  return modelCatalog.find((m) => m.id === modelSel.value) || null;
+}
+function applyBanner(m) {
+  const b = document.getElementById("banner");
+  if (!m) {
+    b.className = "banner train";
+    b.textContent = "No inference model selected.";
+    return;
+  }
+  document.getElementById("pred-title").textContent = "Right — " + m.label;
+  if (m.kind === "physics") {
+    b.className = "banner ready";
+    b.textContent = "Physics freeform fit · audio / STFT only, no checkpoint";
+    return;
+  }
+  if (!m.available) {
+    b.className = "banner train";
+    b.textContent = "No checkpoint for " + m.label + (m.checkpoint ? (" at " + m.checkpoint) : "");
+    return;
+  }
+  if (m.training) {
+    b.className = "banner train";
+    b.textContent = m.label + " training (epoch " + m.epoch_completed + "/" + m.epochs_target +
+      "). UI loads the live best weights" + (m.best_val_orbit_rms != null ? (" · best val " + Number(m.best_val_orbit_rms).toFixed(2) + " m") : "") + ".";
+    return;
+  }
+  b.className = "banner ready";
+  b.textContent = m.label + " ready" +
+    (m.best_val_orbit_rms != null ? (" · val orbit RMS " + Number(m.best_val_orbit_rms).toFixed(2) + " m") : "") +
+    (m.checkpoint ? (" · " + m.checkpoint) : "");
+}
+function fillModelSelect(models, defaultId) {
+  modelCatalog = models || [];
+  modelSel.innerHTML = modelCatalog.map((m) => {
+    const rms = m.best_val_orbit_rms != null ? (" · " + Number(m.best_val_orbit_rms).toFixed(2) + " m") : "";
+    const miss = m.available ? "" : " (missing)";
+    return "<option value=\"" + m.id + "\"" + (m.available ? "" : " disabled") + ">" + m.label + rms + miss + "</option>";
+  }).join("");
+  const pick = defaultId || (modelCatalog.find((m) => m.default) || {}).id || (modelCatalog.find((m) => m.available) || {}).id;
+  if (pick) modelSel.value = pick;
+  applyBanner(selectedModel());
+}
+
+sourceSel.addEventListener("change", () => {
+  const opt = sourceSel.selectedOptions[0];
+  if (!opt) return;
+  if (opt.dataset.v1) document.getElementById("v1").value = opt.dataset.v1;
+  if (opt.dataset.tcpa) document.getElementById("t_cpa1").value = opt.dataset.tcpa;
+  if (opt.dataset.h1) document.getElementById("h1").value = opt.dataset.h1;
+});
+
+async function boot() {
+  const r = await fetch("/api/bootstrap");
+  const data = await r.json();
+  fillModelSelect(data.models, data.default_model);
+  modelSel.addEventListener("change", () => applyBanner(selectedModel()));
+  sourceSel.innerHTML = (data.sources || []).map((s) =>
+    "<option value=\"" + s.name + "\" data-v1=\"" + s.v1_kmph + "\" data-tcpa=\"" + s.t_cpa1_s + "\" data-h1=\"" + s.h1_m + "\">" + s.name + "</option>"
+  ).join("");
+  if (data.default_source) {
+    sourceSel.value = data.default_source.name;
+    document.getElementById("v1").value = data.default_source.v1_kmph;
+    document.getElementById("t_cpa1").value = data.default_source.t_cpa1_s;
+    document.getElementById("h1").value = data.default_source.h1_m;
+  }
+  setInterval(async () => {
+    const models = await fetch("/api/bootstrap").then((x) => x.json()).then((d) => d.models);
+    if (!Array.isArray(models)) return;
+    const cur = modelSel.value;
+    fillModelSelect(models, cur);
+  }, 4000);
+}
+drawBoard();
+drawEmptyPred();
+boot();
+</script>
+</body>
+</html>

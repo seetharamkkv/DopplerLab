@@ -91,6 +91,20 @@ def test_train_mlp_smoke(tmp_path: Path):
         checkpoint_path=ckpt,
     )
     assert ckpt.is_file()
+    last = ckpt.with_name(ckpt.stem + ".last.npz")
+    # Resume from the just-written last file for two more epochs.
+    _, report2 = train_orbit_mlp(
+        out,
+        epochs=14,
+        lr=5e-3,
+        seed=1,
+        holdout_families=("u_turn",),
+        checkpoint_path=ckpt,
+        resume=True,
+    )
+    assert last.is_file()
+    assert report2["epoch_completed"] == 14
+    assert len(report2["history"]) == 14
     assert report["best_val_orbit_rms"] < 80.0
     loaded = OrbitMLP.load(ckpt)
     batch = Phase1Batch.from_dir(out)

@@ -174,8 +174,12 @@ def load_phase1_sample(path: Path | str) -> Phase1Sample:
 
     polyline = None
     poly_path = root / PATH_POLYLINE_RELPATH
+    path_xy_path = root / "metadata/path_xy.npy"
     if poly_path.is_file():
         polyline = np.load(poly_path)
+    elif path_xy_path.is_file():
+        # DopplerSim 2D whiteboard batches export the planned polyline as path_xy.npy.
+        polyline = np.load(path_xy_path)
 
     schema = None
     schema_path = root / SCHEMA_RELPATH

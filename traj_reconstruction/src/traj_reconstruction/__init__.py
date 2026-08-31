@@ -37,6 +37,18 @@ from traj_reconstruction.flexible import (
     train_orbit_mlp,
 )
 from traj_reconstruction.frontend import RidgeFeatures, extract_ridges, plot_ridge_overlay
+from traj_reconstruction.orbit_cnn import (
+    OrbitCNN,
+    infer_learned_orbit,
+    infer_orbit_cnn,
+    load_orbit_model,
+    train_orbit_cnn,
+)
+from traj_reconstruction.orbit_seq import (
+    OrbitSeq1D,
+    infer_orbit_seq,
+    train_orbit_seq,
+)
 from traj_reconstruction.orbit import (
     OrbitAlignResult,
     canonical_xy,
@@ -72,8 +84,10 @@ __all__ = [
     "FitResult",
     "InferenceBundle",
     "OrbitAlignResult",
+    "OrbitCNN",
     "OrbitMLP",
     "OrbitProduct",
+    "OrbitSeq1D",
     "Phase1Batch",
     "Phase1Sample",
     "RidgeFeatures",
@@ -87,8 +101,12 @@ __all__ = [
     "fit_flexible_orbit",
     "fit_orbit_from_audio",
     "fit_parametric_orbit",
+    "infer_learned_orbit",
+    "infer_orbit_cnn",
     "infer_orbit_mlp",
+    "infer_orbit_seq",
     "iter_batch_samples",
+    "load_orbit_model",
     "load_phase1_sample",
     "orbit_align",
     "orbit_family",
@@ -100,7 +118,9 @@ __all__ = [
     "run_all_tiers",
     "run_leakage_audit",
     "to_inference_bundle",
+    "train_orbit_cnn",
     "train_orbit_mlp",
+    "train_orbit_seq",
     "wav_only_smoke",
     "write_orbit_viewer_html",
     "write_splits",

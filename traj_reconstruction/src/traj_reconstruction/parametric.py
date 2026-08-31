@@ -30,6 +30,23 @@ from traj_reconstruction.path_families import make_arc, make_straight
 FamilyName = Literal["straight", "arc"]
 
 
+def _pyplot():
+    """Import pyplot with a writable cache dir (Agg backend)."""
+    import os
+    import tempfile
+
+    if not os.environ.get("MPLCONFIGDIR"):
+        cache = Path(tempfile.gettempdir()) / "matplotlib-dopplerlab"
+        cache.mkdir(parents=True, exist_ok=True)
+        os.environ["MPLCONFIGDIR"] = str(cache)
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    return plt
+
+
 @dataclass(frozen=True)
 class FitResult:
     family: str
@@ -398,7 +415,7 @@ def plot_fit_overlay(
     gt_xy: np.ndarray | None = None,
     title: str = "Parametric orbit fit",
 ) -> Path:
-    import matplotlib.pyplot as plt
+    plt = _pyplot()
 
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)

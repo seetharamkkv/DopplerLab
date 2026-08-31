@@ -179,7 +179,8 @@ def generate_path(
         notes = f"radius_m={R:.1f},sweep_deg={np.rad2deg(sweep):.1f}"
     elif family == PATH_FAMILY_S_CURVE:
         half = float(rng.uniform(50.0, 140.0))
-        amp = float(rng.uniform(3.0, min(0.4 * h, 25.0)))
+        amp_hi = max(3.05, min(0.4 * h, 25.0))
+        amp = float(rng.uniform(3.0, amp_hi))
         poly = make_s_curve(
             cpa_distance_m=h,
             half_length_m=half,

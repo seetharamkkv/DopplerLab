@@ -3,15 +3,17 @@
 
 Uses either:
   --mode flexible  physics freeform fit (no checkpoint)
-  --mode mlp       trained OrbitMLP checkpoint
+  --mode seq        trained ridge-track 1D CNN (f_obs + A_env)
+  --mode cnn        trained complex-STFT 2D CNN
+  --mode mlp        legacy flattened log-magnitude MLP
 
 Always audio/STFT only — no metadata.
 
 Examples:
   python scripts/infer_orbit.py --phase1 data/tier1_smoke/audio_clips/sample_0000002 \\
       --mode flexible --out outputs/infer_flexible.json
-  python scripts/infer_orbit.py --phase1 ... --mode mlp \\
-      --checkpoint checkpoints/orbit_mlp.npz --out outputs/infer_mlp.json
+  python scripts/infer_orbit.py --phase1 ... --mode cnn \\
+      --checkpoint checkpoints/orbit_cnn_path2d_1000.npz --out outputs/infer_cnn.json
 """
 
 from __future__ import annotations
@@ -23,11 +25,8 @@ from pathlib import Path
 import numpy as np
 
 from traj_reconstruction import load_phase1_sample, orbit_align, xy_from_state
-from traj_reconstruction.flexible import (
-    OrbitMLP,
-    fit_flexible_from_audio,
-    infer_orbit_mlp,
-)
+from traj_reconstruction.flexible import fit_flexible_from_audio
+from traj_reconstruction.orbit_cnn import infer_learned_orbit, load_orbit_model
 from traj_reconstruction.parametric import plot_fit_overlay
 from traj_reconstruction.parametric import FitResult
 
@@ -36,8 +35,13 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--phase1", type=Path, default=None)
     p.add_argument("--wav", type=Path, default=None)
-    p.add_argument("--mode", choices=("flexible", "mlp"), default="flexible")
-    p.add_argument("--checkpoint", type=Path, default=Path("checkpoints/orbit_mlp.npz"))
+    p.add_argument("--mode", choices=("flexible", "seq", "cnn", "mlp"), default="cnn")
+    p.add_argument(
+        "--checkpoint",
+        type=Path,
+        default=None,
+        help="Best-weights file (reloaded from disk each run; safe during training)",
+    )
     p.add_argument("--out", type=Path, default=Path("outputs/infer_orbit.json"))
     p.add_argument("--plot", type=Path, default=Path("outputs/infer_orbit.png"))
     args = p.parse_args()
@@ -66,18 +70,32 @@ def main() -> None:
             raise SystemExit("provide --phase1 or --wav")
         xy = fit.xy_pred
         payload = fit.to_jsonable()
-        plot_fit_overlay(fit, args.plot, gt_xy=gt_xy, title="Flexible freeform orbit")
+        _write_plot(fit, args.plot, gt_xy=gt_xy, title="Flexible freeform orbit")
     else:
-        model = OrbitMLP.load(args.checkpoint)
-        if stft is not None:
-            xy = infer_orbit_mlp(model, stft_db=stft)
-        elif wav is not None:
-            xy = infer_orbit_mlp(model, wav_path=wav)
+        from traj_reconstruction.paths import (
+            DEFAULT_ORBIT_CNN_BEST,
+            DEFAULT_ORBIT_MLP_BEST,
+            DEFAULT_ORBIT_SEQ_BEST,
+        )
+
+        if args.checkpoint is not None:
+            ckpt = args.checkpoint
+        elif args.mode == "mlp":
+            ckpt = DEFAULT_ORBIT_MLP_BEST
+        elif args.mode == "cnn":
+            ckpt = DEFAULT_ORBIT_CNN_BEST
+        else:
+            ckpt = DEFAULT_ORBIT_SEQ_BEST
+        model = load_orbit_model(ckpt)
+        if wav is not None:
+            xy = infer_learned_orbit(model, wav_path=wav, stft_db=stft)
+        elif stft is not None:
+            xy = infer_learned_orbit(model, stft_db=stft)
         else:
             raise SystemExit("provide --phase1 or --wav")
         payload = {
-            "mode": "mlp",
-            "checkpoint": str(args.checkpoint),
+            "mode": args.mode,
+            "checkpoint": str(ckpt),
             "n_frames": int(xy.shape[0]),
             "note": "Output is an observer-centered trajectory orbit; heading is free.",
         }
@@ -85,9 +103,8 @@ def main() -> None:
             n = min(len(xy), len(gt_xy))
             orb = orbit_align(xy[:n], gt_xy[:n])
             payload["orbit_rms"] = orb.rms
-        # Minimal FitResult-like plot
         dummy = FitResult(
-            family="orbit_mlp",
+            family=f"orbit_{args.mode}",
             params={},
             xy_pred=xy,
             frame_times=np.arange(len(xy), dtype=np.float64),
@@ -96,9 +113,9 @@ def main() -> None:
             residual_rms_f=0.0,
             residual_rms_A=0.0,
             success=True,
-            message="mlp",
+            message=args.mode,
         )
-        plot_fit_overlay(dummy, args.plot, gt_xy=gt_xy, title="OrbitMLP inference")
+        _write_plot(dummy, args.plot, gt_xy=gt_xy, title=f"{args.mode.upper()} orbit inference")
 
     payload["xy_pred"] = np.asarray(xy).tolist()
     payload["mirror_ambiguous"] = True
@@ -107,7 +124,15 @@ def main() -> None:
     args.out.write_text(json.dumps(payload, indent=2))
     print(json.dumps({k: payload[k] for k in payload if k != "xy_pred"}, indent=2))
     print(f"wrote {args.out}")
-    print(f"wrote {args.plot}")
+
+
+def _write_plot(fit: FitResult, out_path: Path, *, gt_xy, title: str) -> None:
+    try:
+        plot_fit_overlay(fit, out_path, gt_xy=gt_xy, title=title)
+    except ImportError:
+        print("skipping plot (install matplotlib); JSON was still written")
+        return
+    print(f"wrote {out_path}")
 
 
 if __name__ == "__main__":

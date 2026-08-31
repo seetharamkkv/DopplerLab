@@ -195,6 +195,28 @@ def solve_retarded_time_path(
     return t_r, r_at
 
 
+def compute_stft_complex(
+    audio: np.ndarray,
+    *,
+    sr: int = SPEC_SR_HZ,
+    n_fft: int = STFT_N_FFT,
+    hop_length: int = STFT_HOP_LENGTH,
+) -> np.ndarray:
+    """Complex STFT, shape (freq, time). Same frame grid as ``compute_stft_db``."""
+    del sr
+    audio = np.asarray(audio, dtype=np.float64).reshape(-1)
+    n = int(audio.shape[0])
+    n_frames = stft_n_frames(n, hop_length)
+    pad = int(n_fft // 2)
+    y = np.pad(audio, (pad, pad), mode="constant")
+    window = np.hanning(n_fft).astype(np.float64)
+    starts = np.arange(n_frames, dtype=np.int64) * int(hop_length)
+    idx = starts[:, None] + np.arange(int(n_fft), dtype=np.int64)[None, :]
+    idx = np.minimum(idx, y.shape[0] - 1)
+    frames = y[idx] * window[None, :]
+    return np.fft.rfft(frames, n=int(n_fft), axis=1).T
+
+
 def compute_stft_db(
     audio: np.ndarray,
     *,
@@ -207,20 +229,6 @@ def compute_stft_db(
     Frame count is ``1 + n_samples // hop_length`` so it matches
     ``stft_frame_times`` / Phase 1 state grids.
     """
-    del sr  # times come from hop/sr elsewhere; STFT itself is sample-based
-    audio = np.asarray(audio, dtype=np.float64)
-    n = int(audio.shape[0])
-    n_frames = stft_n_frames(n, hop_length)
-    pad = int(n_fft // 2)
-    y = np.pad(audio, (pad, pad), mode="constant")
-    window = np.hanning(n_fft).astype(np.float64)
-    n_freqs = n_fft // 2 + 1
-    out = np.empty((n_freqs, n_frames), dtype=np.float64)
-    for i in range(n_frames):
-        start = i * int(hop_length)
-        frame = y[start : start + n_fft]
-        if frame.shape[0] < n_fft:
-            frame = np.pad(frame, (0, n_fft - frame.shape[0]))
-        spec = np.fft.rfft(frame * window, n=n_fft)
-        out[:, i] = np.abs(spec)
-    return (20.0 * np.log10(np.maximum(out, 1e-10))).astype(np.float32)
+    spec = compute_stft_complex(audio, sr=sr, n_fft=n_fft, hop_length=hop_length)
+    mag = np.abs(spec)
+    return (20.0 * np.log10(np.maximum(mag, 1e-10))).astype(np.float32)

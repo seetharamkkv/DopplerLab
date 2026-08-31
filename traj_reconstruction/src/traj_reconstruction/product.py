@@ -15,16 +15,13 @@ from typing import Any, Literal
 import numpy as np
 
 from traj_reconstruction.flexible import (
-    OrbitMLP,
     fit_flexible_from_audio,
-    infer_orbit_mlp,
 )
-from traj_reconstruction.frontend import extract_ridges
-from traj_reconstruction.orbit import orbit_family, xy_from_state
+from traj_reconstruction.orbit import orbit_family
 from traj_reconstruction.parametric import fit_orbit_from_audio
 
 
-MethodName = Literal["flexible", "parametric", "mlp"]
+MethodName = Literal["flexible", "parametric", "mlp", "cnn", "seq"]
 
 
 @dataclass
@@ -114,21 +111,24 @@ def predict_orbit(
     times = None
     meta: dict[str, Any] = {}
 
-    if method == "mlp":
+    if method in ("mlp", "cnn", "seq"):
+        from traj_reconstruction.kinematics import stft_frame_times
+        from traj_reconstruction.orbit_cnn import infer_learned_orbit, load_orbit_model
+        from traj_reconstruction.paths import default_learned_checkpoint
+
         if mlp_checkpoint is None:
-            raise ValueError("mlp method requires mlp_checkpoint")
-        model = OrbitMLP.load(mlp_checkpoint)
-        if stft_db is not None:
-            xy = infer_orbit_mlp(model, stft_db=stft_db)
-            times = np.arange(len(xy), dtype=np.float64)
-        elif wav_path is not None:
-            feats = extract_ridges(wav_path=wav_path, n_harmonics=1)
-            xy = infer_orbit_mlp(model, stft_db=feats.stft_db)
-            times = feats.frame_times
-            residual = None
-        else:
-            raise ValueError("provide wav_path or stft_db for mlp")
+            mlp_checkpoint = default_learned_checkpoint()
+        model = load_orbit_model(mlp_checkpoint)
+        xy = infer_learned_orbit(
+            model,
+            stft_db=stft_db,
+            wav_path=wav_path,
+            audio=audio,
+            sr=sr,
+        )
+        times = stft_frame_times(len(xy))
         meta["checkpoint"] = str(mlp_checkpoint)
+        meta["arch"] = type(model).__name__
     elif method == "parametric":
         fit = fit_orbit_from_audio(
             wav_path=wav_path,
@@ -180,8 +180,9 @@ def render_orbit_png(
     title: str | None = None,
 ) -> Path:
     """Static figure for papers (one family member)."""
-    import matplotlib.pyplot as plt
+    from traj_reconstruction.parametric import _pyplot
 
+    plt = _pyplot()
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     xy = product.rotated(angle_rad, mirror=mirror)

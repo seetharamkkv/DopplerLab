@@ -11,6 +11,8 @@ Two complementary tools (audio / STFT only — no metadata):
 from __future__ import annotations
 
 import json
+import pickle
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -334,8 +336,9 @@ class OrbitMLP:
     def save(self, path: Path | str) -> None:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_name(f".{path.name}.writing.npz")
         np.savez_compressed(
-            path,
+            tmp,
             w1=self.w1,
             b1=self.b1,
             w2=self.w2,
@@ -346,21 +349,33 @@ class OrbitMLP:
             feat_f=np.array([self.feat_f]),
             feat_t=np.array([self.feat_t]),
         )
+        tmp.replace(path)
 
     @classmethod
     def load(cls, path: Path | str) -> OrbitMLP:
-        data = np.load(path)
-        return cls(
-            w1=data["w1"],
-            b1=data["b1"],
-            w2=data["w2"],
-            b2=data["b2"],
-            w3=data["w3"],
-            b3=data["b3"],
-            n_knots=int(data["n_knots"][0]),
-            feat_f=int(data["feat_f"][0]),
-            feat_t=int(data["feat_t"][0]),
-        )
+        path = Path(path)
+        last_err: Exception | None = None
+        for attempt in range(8):
+            try:
+                data = np.load(path)
+                return cls(
+                    w1=data["w1"],
+                    b1=data["b1"],
+                    w2=data["w2"],
+                    b2=data["b2"],
+                    w3=data["w3"],
+                    b3=data["b3"],
+                    n_knots=int(data["n_knots"][0]),
+                    feat_f=int(data["feat_f"][0]),
+                    feat_t=int(data["feat_t"][0]),
+                )
+            except Exception as exc:  # noqa: BLE001 — retry while trainer replaces the file
+                last_err = exc
+                import time
+
+                time.sleep(0.04 * (attempt + 1))
+        assert last_err is not None
+        raise last_err
 
 
 def orbit_mse_loss(pred_xy: np.ndarray, gt_xy: np.ndarray) -> float:
@@ -388,6 +403,125 @@ def _sample_target(sample: Phase1Sample) -> np.ndarray:
     return xy_from_state(src)
 
 
+def _last_checkpoint_path(best_path: Path) -> Path:
+    return best_path.with_name(best_path.stem + ".last.npz")
+
+
+def _status_path(best_path: Path) -> Path:
+    return best_path.with_name(best_path.stem + ".status.json")
+
+
+def _atomic_write_text(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(text)
+    tmp.replace(path)
+
+
+def _weights_tuple(model: OrbitMLP) -> tuple[np.ndarray, ...]:
+    return (
+        model.w1.copy(),
+        model.b1.copy(),
+        model.w2.copy(),
+        model.b2.copy(),
+        model.w3.copy(),
+        model.b3.copy(),
+    )
+
+
+def _apply_weights(model: OrbitMLP, state: tuple[np.ndarray, ...]) -> None:
+    model.w1, model.b1, model.w2, model.b2, model.w3, model.b3 = (
+        state[0].copy(),
+        state[1].copy(),
+        state[2].copy(),
+        state[3].copy(),
+        state[4].copy(),
+        state[5].copy(),
+    )
+
+
+def _save_best_atomic(model: OrbitMLP, best_state: tuple[np.ndarray, ...], path: Path) -> None:
+    current = _weights_tuple(model)
+    _apply_weights(model, best_state)
+    model.save(path)
+    _apply_weights(model, current)
+
+
+def _save_last_atomic(
+    path: Path,
+    *,
+    model: OrbitMLP,
+    best_state: tuple[np.ndarray, ...] | None,
+    epoch_next: int,
+    best_val: float,
+    best_epoch: int | None,
+    history: list[dict[str, float]],
+    train_idx: list[int],
+    val_idx: list[int],
+    seed: int,
+    lr: float,
+    rng: np.random.Generator,
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.writing.npz")
+    best = best_state or _weights_tuple(model)
+    np.savez_compressed(
+        tmp,
+        w1=model.w1,
+        b1=model.b1,
+        w2=model.w2,
+        b2=model.b2,
+        w3=model.w3,
+        b3=model.b3,
+        best_w1=best[0],
+        best_b1=best[1],
+        best_w2=best[2],
+        best_b2=best[3],
+        best_w3=best[4],
+        best_b3=best[5],
+        n_knots=np.array([model.n_knots]),
+        feat_f=np.array([model.feat_f]),
+        feat_t=np.array([model.feat_t]),
+        epoch_next=np.array([int(epoch_next)]),
+        best_val=np.array([float(best_val)]),
+        best_epoch=np.array([-1 if best_epoch is None else int(best_epoch)]),
+        train_idx=np.asarray(train_idx, dtype=np.int64),
+        val_idx=np.asarray(val_idx, dtype=np.int64),
+        seed=np.array([int(seed)]),
+        lr=np.array([float(lr)]),
+        history_json=np.array(json.dumps(history)),
+        rng_state=np.frombuffer(pickle.dumps(rng.bit_generator.state), dtype=np.uint8),
+    )
+    tmp.replace(path)
+
+
+def _write_status(
+    best_path: Path,
+    *,
+    epoch_completed: int,
+    epochs: int,
+    best_val: float,
+    best_epoch: int | None,
+    running: bool,
+    n_train: int,
+    n_val: int,
+) -> None:
+    payload = {
+        "running": running,
+        "epoch_completed": int(epoch_completed),
+        "epochs_target": int(epochs),
+        "best_val_orbit_rms": float(best_val) if np.isfinite(best_val) else None,
+        "best_epoch": best_epoch,
+        "best_checkpoint": str(best_path.resolve()),
+        "last_checkpoint": str(_last_checkpoint_path(best_path).resolve()),
+        "n_train": n_train,
+        "n_val": n_val,
+        "updated_at": time.time(),
+        "note": "Frontend / infer should load best_checkpoint; it is replaced atomically.",
+    }
+    _atomic_write_text(_status_path(best_path), json.dumps(payload, indent=2))
+
+
 def train_orbit_mlp(
     batch_dir: Path | str,
     *,
@@ -396,24 +530,26 @@ def train_orbit_mlp(
     seed: int = 0,
     holdout_families: tuple[str, ...] = ("u_turn",),
     checkpoint_path: Path | str | None = None,
+    resume: bool = True,
 ) -> tuple[OrbitMLP, dict[str, Any]]:
-    """Train OrbitMLP on a simulated Phase 1 batch (STFT → canonical path)."""
+    """Train OrbitMLP on a simulated Phase 1 batch (STFT → canonical path).
+
+    ``checkpoint_path`` is the **best** weights file (frontend-safe, atomic).
+    Resume state is ``<stem>.last.npz``. Inference can load the best file while
+    training continues.
+    """
     batch = Phase1Batch.from_dir(batch_dir)
     rng = np.random.default_rng(seed)
     model = OrbitMLP.create(rng)
+    best_path = Path(checkpoint_path) if checkpoint_path is not None else None
+    last_path = _last_checkpoint_path(best_path) if best_path is not None else None
 
-    train_idx = [
-        i
-        for i, r in enumerate(batch.rows)
-        if r.get("path_family", "") not in holdout_families
-    ]
-    val_idx = [
-        i
-        for i, r in enumerate(batch.rows)
-        if r.get("path_family", "") in holdout_families
-    ]
+    def _family(row: dict[str, str]) -> str:
+        return str(row.get("path_family") or row.get("trajectory_type") or "")
+
+    train_idx = [i for i, r in enumerate(batch.rows) if _family(r) not in holdout_families]
+    val_idx = [i for i, r in enumerate(batch.rows) if _family(r) in holdout_families]
     if not val_idx:
-        # Random holdout if no family reserved.
         order = list(train_idx)
         rng.shuffle(order)
         n_val = max(1, len(order) // 5)
@@ -422,21 +558,115 @@ def train_orbit_mlp(
 
     history: list[dict[str, float]] = []
     best_val = float("inf")
-    best_state = None
+    best_state: tuple[np.ndarray, ...] | None = None
+    best_epoch: int | None = None
+    start_epoch = 0
 
-    for epoch in range(int(epochs)):
+    if resume and last_path is not None and last_path.is_file():
+        data = np.load(last_path, allow_pickle=True)
+        model = OrbitMLP(
+            w1=data["w1"],
+            b1=data["b1"],
+            w2=data["w2"],
+            b2=data["b2"],
+            w3=data["w3"],
+            b3=data["b3"],
+            n_knots=int(data["n_knots"][0]),
+            feat_f=int(data["feat_f"][0]),
+            feat_t=int(data["feat_t"][0]),
+        )
+        best_state = (
+            data["best_w1"],
+            data["best_b1"],
+            data["best_w2"],
+            data["best_b2"],
+            data["best_w3"],
+            data["best_b3"],
+        )
+        start_epoch = int(data["epoch_next"][0])
+        best_val = float(data["best_val"][0])
+        be = int(data["best_epoch"][0])
+        best_epoch = None if be < 0 else be
+        train_idx = [int(i) for i in data["train_idx"].tolist()]
+        val_idx = [int(i) for i in data["val_idx"].tolist()]
+        history = json.loads(data["history_json"].item())
+        rng.bit_generator.state = pickle.loads(data["rng_state"].tobytes())
+        print(
+            f"Resumed last checkpoint at epoch {start_epoch}/{epochs} "
+            f"(best_val={best_val:.4f} m)",
+            flush=True,
+        )
+    elif resume and best_path is not None and best_path.is_file():
+        loaded = OrbitMLP.load(best_path)
+        model.w1, model.b1 = loaded.w1, loaded.b1
+        model.w2, model.b2 = loaded.w2, loaded.b2
+        model.w3, model.b3 = loaded.w3, loaded.b3
+        model.n_knots, model.feat_f, model.feat_t = loaded.n_knots, loaded.feat_f, loaded.feat_t
+        best_state = _weights_tuple(model)
+        sidecar = best_path.with_suffix(".json")
+        if sidecar.is_file():
+            prev = json.loads(sidecar.read_text())
+            history = list(prev.get("history") or [])
+            start_epoch = len(history)
+            best_val = float(prev.get("best_val_orbit_rms", float("inf")))
+            if history:
+                best_epoch = int(min(history, key=lambda h: h["val_orbit_rms"])["epoch"])
+        print(
+            f"Warm-started best checkpoint; continuing from epoch {start_epoch}/{epochs} "
+            f"(best_val={best_val:.4f} m)",
+            flush=True,
+        )
+
+    packed: list[tuple[np.ndarray, np.ndarray, np.ndarray, int]] = []
+    for i in range(len(batch)):
+        sample = batch.load(i)
+        bundle = to_inference_bundle(sample)
+        assert bundle.stft_db is not None
+        feat = stft_to_features(bundle.stft_db)
+        gt = _sample_target(sample)
+        knots_gt = _path_to_knots(gt, model.n_knots)
+        packed.append((feat, knots_gt, gt, sample.n_frames))
+
+    def _report(running: bool, epoch_completed: int) -> dict[str, Any]:
+        return {
+            "batch_dir": str(Path(batch_dir).resolve()),
+            "epochs": epochs,
+            "epoch_completed": epoch_completed,
+            "n_train": len(train_idx),
+            "n_val": len(val_idx),
+            "holdout_families": list(holdout_families),
+            "best_val_orbit_rms": best_val,
+            "best_epoch": best_epoch,
+            "history": history,
+            "data_scope": "simulated_only",
+            "inputs": "spectrograms/stft.npy only",
+            "source": "dopplersim_path2d_whiteboard_batch",
+            "running": running,
+            "best_checkpoint": str(best_path.resolve()) if best_path is not None else None,
+        }
+
+    if best_path is not None:
+        _write_status(
+            best_path,
+            epoch_completed=start_epoch,
+            epochs=epochs,
+            best_val=best_val,
+            best_epoch=best_epoch,
+            running=True,
+            n_train=len(train_idx),
+            n_val=len(val_idx),
+        )
+        if best_state is not None and not best_path.is_file():
+            _save_best_atomic(model, best_state, best_path)
+
+    if start_epoch >= int(epochs):
+        print(f"Already at {start_epoch}/{epochs} epochs; nothing to train.", flush=True)
+
+    for epoch in range(start_epoch, int(epochs)):
         rng.shuffle(train_idx)
         train_losses = []
         for i in train_idx:
-            sample = batch.load(i)
-            # Leakage check: features from STFT only.
-            bundle = to_inference_bundle(sample)
-            assert bundle.stft_db is not None
-            feat = stft_to_features(bundle.stft_db)
-            gt = _sample_target(sample)
-            knots_gt = _path_to_knots(gt, model.n_knots)
-
-            # Forward
+            feat, knots_gt, _gt, _n_frames = packed[i]
             x = feat
             z1 = x @ model.w1 + model.b1
             h1 = np.tanh(z1)
@@ -446,12 +676,10 @@ def train_orbit_mlp(
             knots = out.reshape(model.n_knots, 2)
 
             err = knots - knots_gt
-            # Smoothness on knots.
             d2 = np.diff(knots, n=2, axis=0)
             loss = float(np.mean(err**2) + 0.01 * np.mean(d2**2))
             train_losses.append(loss)
 
-            # Backward
             dout = (2.0 / err.size) * err.ravel()
             g_w3 = np.outer(h2, dout)
             g_b3 = dout
@@ -469,45 +697,72 @@ def train_orbit_mlp(
             model.w1 -= lr * g_w1
             model.b1 -= lr * g_b1
 
-        # Validation orbit RMS
         val_orbit = []
         for i in val_idx:
-            sample = batch.load(i)
-            pred = model.predict_xy(sample.stft_db, sample.n_frames)
-            gt = _sample_target(sample)
+            feat, _knots_gt, gt, n_frames = packed[i]
+            pred = _knots_to_path(model.forward_knots(feat), n_frames)
             val_orbit.append(orbit_align(pred, gt).rms)
         mean_train = float(np.mean(train_losses)) if train_losses else 0.0
         mean_val = float(np.mean(val_orbit)) if val_orbit else float("inf")
         history.append({"epoch": float(epoch), "train_mse": mean_train, "val_orbit_rms": mean_val})
+        print(
+            f"epoch {epoch + 1}/{epochs}  train_mse={mean_train:.4f}  "
+            f"val_orbit_rms={mean_val:.4f} m",
+            flush=True,
+        )
         if mean_val < best_val:
             best_val = mean_val
-            best_state = (
-                model.w1.copy(),
-                model.b1.copy(),
-                model.w2.copy(),
-                model.b2.copy(),
-                model.w3.copy(),
-                model.b3.copy(),
+            best_epoch = epoch
+            best_state = _weights_tuple(model)
+            if best_path is not None:
+                _save_best_atomic(model, best_state, best_path)
+                print(f"  wrote best checkpoint (frontend-safe): {best_path}", flush=True)
+
+        if best_path is not None and last_path is not None:
+            _save_last_atomic(
+                last_path,
+                model=model,
+                best_state=best_state,
+                epoch_next=epoch + 1,
+                best_val=best_val,
+                best_epoch=best_epoch,
+                history=history,
+                train_idx=train_idx,
+                val_idx=val_idx,
+                seed=seed,
+                lr=lr,
+                rng=rng,
+            )
+            report_live = _report(running=True, epoch_completed=epoch + 1)
+            _atomic_write_text(best_path.with_suffix(".json"), json.dumps(report_live, indent=2))
+            _write_status(
+                best_path,
+                epoch_completed=epoch + 1,
+                epochs=epochs,
+                best_val=best_val,
+                best_epoch=best_epoch,
+                running=True,
+                n_train=len(train_idx),
+                n_val=len(val_idx),
             )
 
     if best_state is not None:
-        model.w1, model.b1, model.w2, model.b2, model.w3, model.b3 = best_state
+        _apply_weights(model, best_state)
 
-    report = {
-        "batch_dir": str(Path(batch_dir).resolve()),
-        "epochs": epochs,
-        "n_train": len(train_idx),
-        "n_val": len(val_idx),
-        "holdout_families": list(holdout_families),
-        "best_val_orbit_rms": best_val,
-        "history": history,
-        "data_scope": "simulated_only",
-        "inputs": "spectrograms/stft.npy only",
-    }
-    if checkpoint_path is not None:
-        ckpt = Path(checkpoint_path)
-        model.save(ckpt)
-        ckpt.with_suffix(".json").write_text(json.dumps(report, indent=2))
+    report = _report(running=False, epoch_completed=max(start_epoch, int(epochs)))
+    if best_path is not None:
+        model.save(best_path)
+        _atomic_write_text(best_path.with_suffix(".json"), json.dumps(report, indent=2))
+        _write_status(
+            best_path,
+            epoch_completed=int(epochs),
+            epochs=epochs,
+            best_val=best_val,
+            best_epoch=best_epoch,
+            running=False,
+            n_train=len(train_idx),
+            n_val=len(val_idx),
+        )
     return model, report
 
 
