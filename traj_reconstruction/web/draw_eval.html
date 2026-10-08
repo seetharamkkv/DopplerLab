@@ -93,6 +93,13 @@
     audio { width: 100%; }
     img.overlay { width: 100%; border-radius: 8px; background: #0c1118; display: none; }
     .placeholder { color: var(--muted); font-size: 0.9rem; padding: 1.5rem 0.5rem; text-align: center; }
+    .orbit-controls { display: none; flex-direction: column; gap: 0.55rem; }
+    .orbit-controls.on { display: flex; }
+    input[type=range] { width: 100%; accent-color: var(--accent); }
+    .rot-head { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+    .rot-head input[type=range] { flex: 1; width: auto; }
+    .rot-head span { color: var(--ink); font-size: 0.9rem; text-transform: none; letter-spacing: 0; min-width: 3.2rem; text-align: right; }
+    label.inline { flex-direction: row; align-items: center; text-transform: none; letter-spacing: 0; font-size: 0.85rem; color: var(--ink); }
   </style>
 </head>
 <body>
@@ -146,10 +153,20 @@
 
   <section class="col">
     <h2 id="pred-title">Right — prediction</h2>
-    <p class="hint" id="pred-hint">Choose a trained checkpoint or the physics fit. Heading is an orbit family — prediction is rotated/mirrored onto the drawn path before scoring.</p>
+    <p class="hint" id="pred-hint">Choose a trained checkpoint or the physics fit. Heading is an orbit family — rotate/mirror the raw prediction about the mic to see how close it gets to the drawn path. Scoring still uses the best auto-alignment.</p>
     <label>Inference model
       <select id="model" name="model"></select>
     </label>
+    <div class="orbit-controls" id="orbit-controls">
+      <label>Rotate prediction about mic
+        <div class="rot-head"><input id="rot" type="range" min="0" max="360" value="0" step="1"/><span id="rot-val">0°</span></div>
+      </label>
+      <div class="row">
+        <label class="inline"><input id="mirror" type="checkbox"/> Mirror family</label>
+        <button type="button" class="ghost" id="snap-best">Snap to best alignment</button>
+      </div>
+      <p class="hint" id="rot-hint">After a prediction, drag the slider to hunt for a matching pose.</p>
+    </div>
     <canvas id="pred" class="pred" width="900" height="640"></canvas>
     <img id="overlay" class="overlay" alt="GT vs predicted overlay"/>
     <div class="metrics" id="metrics"></div>
@@ -178,6 +195,7 @@ let strokes = [];
 let drawing = false;
 let current = null;
 let pollTimer = null;
+let lastResult = null;
 
 function plotRect(c) {
   return { x: PAD.l, y: PAD.t, w: c.width - PAD.l - PAD.r, h: c.height - PAD.t - PAD.b };
@@ -272,15 +290,56 @@ function drawBoard() {
   }
   statsEl.textContent = "Path length: " + pathLengthM().toFixed(1) + " m";
 }
+function wrapDeg(d) { return ((d % 360) + 360) % 360; }
+function transformXY(xy, angDeg, mir) {
+  const a = angDeg * Math.PI / 180;
+  const c = Math.cos(a), s = Math.sin(a);
+  return (xy || []).map((p) => {
+    const x = mir ? -p[0] : p[0];
+    const y = p[1];
+    return [c * x - s * y, s * x + c * y];
+  });
+}
+function pathRms(a, b) {
+  const n = Math.min((a || []).length, (b || []).length);
+  if (!n) return NaN;
+  let s = 0;
+  for (let i = 0; i < n; i++) {
+    const dx = a[i][0] - b[i][0], dy = a[i][1] - b[i][1];
+    s += dx * dx + dy * dy;
+  }
+  return Math.sqrt(s / n);
+}
+function bestAlignDeg(res) {
+  const rad = res && res.metrics ? res.metrics.orbit_rotation_rad : null;
+  if (rad == null) return 0;
+  return Math.round(wrapDeg(rad * 180 / Math.PI));
+}
+function resetOrbitControls() {
+  document.getElementById("orbit-controls").classList.remove("on");
+  document.getElementById("rot").value = 0;
+  document.getElementById("rot-val").textContent = "0°";
+  document.getElementById("mirror").checked = false;
+  document.getElementById("rot-hint").textContent = "After a prediction, drag the slider to hunt for a matching pose.";
+}
 function drawEmptyPred() {
+  lastResult = null;
   drawAxes(pred, pctx, WORLD);
   pctx.fillStyle = "#9db0c7";
   pctx.font = "16px ui-sans-serif";
   pctx.textAlign = "center";
   pctx.fillText("Prediction appears here after generate", pred.width / 2, pred.height / 2);
 }
-function drawResult(res) {
-  const gt = res.gt_xy, al = res.aligned_xy;
+function drawResult() {
+  const res = lastResult;
+  if (!res) return;
+  const rotEl = document.getElementById("rot");
+  const mirEl = document.getElementById("mirror");
+  const ang = +rotEl.value;
+  document.getElementById("rot-val").textContent = ang + "°";
+  const gt = res.gt_xy;
+  const posed = transformXY(res.pred_xy, ang, mirEl.checked);
+  const live = pathRms(posed, gt);
   drawAxes(pred, pctx, WORLD);
   const micX = parseFloat(micXEl.value) || 0;
   const micY = parseFloat(micYEl.value) || 0;
@@ -303,9 +362,18 @@ function drawResult(res) {
     pctx.restore();
   }
   strokePts(gt, "#94a3b8", 2.2, [7, 5]);
-  strokePts(al, "#3dbb9a", 3, []);
+  strokePts(posed, "#3dbb9a", 3, []);
   pctx.fillStyle = "#9db0c7"; pctx.font = "12px ui-sans-serif"; pctx.textAlign = "left";
-  pctx.fillText("dashed = drawn GT   solid = orbit-aligned pred", 60, 28);
+  pctx.fillText("dashed = drawn GT   solid = rotated pred", 60, 28);
+  const liveEl = document.getElementById("live-rms");
+  if (liveEl && Number.isFinite(live)) liveEl.textContent = live.toFixed(2) + " m";
+  const bestDeg = bestAlignDeg(res);
+  const mirrored = !!(res.metrics && res.metrics.orbit_reflected);
+  const bestRms = res.metrics ? res.metrics.orbit_rms_m : null;
+  document.getElementById("rot-hint").textContent =
+    "This pose: " + (Number.isFinite(live) ? live.toFixed(2) + " m RMS" : "—") +
+    ". Best auto-align is " + bestDeg + "°" + (mirrored ? " + mirror" : "") +
+    (bestRms != null ? (" (" + Number(bestRms).toFixed(2) + " m).") : ".");
 }
 
 board.addEventListener("pointerdown", (ev) => {
@@ -382,16 +450,22 @@ function applyJob(job) {
     leftMsg.textContent = "WAV ready (" + job.result.duration_s.toFixed(2) + " s).";
     rightMsg.textContent = "Prediction complete" +
       (job.result.model && job.result.model.label ? " · " + job.result.model.label : "") + ".";
-    drawResult(job.result);
+    lastResult = job.result;
+    document.getElementById("orbit-controls").classList.add("on");
+    document.getElementById("rot").value = 0;
+    document.getElementById("mirror").checked = false;
     const m = job.result.metrics;
     document.getElementById("metrics").innerHTML = [
-      ["Orbit RMS", m.orbit_rms_m.toFixed(2) + " m"],
+      ["Orbit RMS (best)", m.orbit_rms_m.toFixed(2) + " m"],
+      ["This pose RMS", "<span id='live-rms'>—</span>"],
+      ["Best rotation", bestAlignDeg(job.result) + "°" + (m.orbit_reflected ? " + mirror" : "")],
       ["Length-norm RMS", (100 * m.orbit_len_norm).toFixed(1) + " %"],
       ["CPA GT / pred", m.cpa_gt_m.toFixed(1) + " / " + m.cpa_pred_m.toFixed(1) + " m"],
       ["CPA relative err", (100 * m.cpa_rel_err).toFixed(1) + " %"],
       ["Speed GT / pred", m.speed_gt_mps.toFixed(2) + " / " + m.speed_pred_mps.toFixed(2) + " m/s"],
       ["Speed relative err", (100 * m.speed_rel_err).toFixed(1) + " %"],
     ].map(([k,v]) => "<div class='metric'><span>" + k + "</span><b>" + v + "</b></div>").join("");
+    drawResult();
     const img = document.getElementById("overlay");
     img.style.display = "block";
     img.src = "/api/jobs/" + job.id + "/overlay.png?t=" + Date.now();
@@ -420,6 +494,7 @@ document.getElementById("form").addEventListener("submit", async (ev) => {
   document.getElementById("right-msg").textContent = "Waiting for generated audio…";
   document.getElementById("metrics").innerHTML = "";
   document.getElementById("overlay").style.display = "none";
+  resetOrbitControls();
   drawEmptyPred();
   const fd = new FormData(document.getElementById("form"));
   const r = await fetch("/api/jobs", { method: "POST", body: fd });
@@ -505,6 +580,14 @@ async function boot() {
     fillModelSelect(models, cur);
   }, 4000);
 }
+document.getElementById("rot").addEventListener("input", drawResult);
+document.getElementById("mirror").addEventListener("change", drawResult);
+document.getElementById("snap-best").addEventListener("click", () => {
+  if (!lastResult) return;
+  document.getElementById("rot").value = String(bestAlignDeg(lastResult));
+  document.getElementById("mirror").checked = !!(lastResult.metrics && lastResult.metrics.orbit_reflected);
+  drawResult();
+});
 drawBoard();
 drawEmptyPred();
 boot();

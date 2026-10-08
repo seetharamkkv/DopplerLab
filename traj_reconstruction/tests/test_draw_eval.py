@@ -14,6 +14,8 @@ def test_score_identity_path():
     assert m["orbit_rms_m"] < 1e-8
     assert m["cpa_rel_err"] < 1e-8
     assert m["n_frames"] == 80
+    assert abs(m["orbit_rotation_rad"]) < 1e-6
+    assert m["orbit_reflected"] is False
 
 
 def test_dopplersim_sibling_exists():
@@ -36,6 +38,9 @@ def test_app_serves_page():
     assert home.status_code == 200
     assert b'name="model"' in home.data
     assert b"Inference model" in home.data
+    assert b'id="rot"' in home.data
+    assert b"Rotate prediction about mic" in home.data
+    assert b"Snap to best alignment" in home.data
     boot = client.get("/api/bootstrap")
     assert boot.status_code == 200
     payload = boot.get_json()

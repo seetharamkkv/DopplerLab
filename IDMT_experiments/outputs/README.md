@@ -1,5 +1,7 @@
 # IDMT experiment outputs
 
+The replication record for these runs is [`replications.json`](replications.json).
+
 Outputs are grouped by **model family**, then **task**.
 
 ```

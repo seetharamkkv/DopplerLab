@@ -38,8 +38,27 @@ Simulated data supports the full breadth of these tasks. Real datasets implement
 | [speed_estimation](speed_estimation/) | VS13 physics Ridge speed; simulated multi-task notebooks | Active |
 | [engine_acoustics](engine_acoustics/) | Four-stroke engine RPM / order tracking | Active |
 | [data_loading](data_loading/) | Shared VS13 / pass-by loaders | Active |
+| [ctc_exp](ctc_exp/) | Clip-level speed bins and kinematic token retrieval | Active |
+| [position_ctc](position_ctc/) | Time-resolved canonical position from pass-by audio | Active |
 
 Local planning notes, manuscript drafts, and figures live under `ref_docs/` (gitignored).
+
+## Replication records
+
+The replication record for the CTC position experiments is [`position_ctc/outputs/ablate/ablations.json`](position_ctc/outputs/ablate/ablations.json). The readable write-up of every ablation is [`position_ctc/ABLATIONS.md`](position_ctc/ABLATIONS.md). `train_time_seconds` is null where a run did not record duration.
+
+The other tracks keep the same kind of file:
+
+| Track | Record |
+|-------|--------|
+| Clip-level CTC and the speed-classifier tracker | [`ctc_exp/outputs/replications.json`](ctc_exp/outputs/replications.json) |
+| IDMT direction, weather, vehicle, physics, and fusion | [`IDMT_experiments/outputs/replications.json`](IDMT_experiments/outputs/replications.json) |
+| Simulated trajectory OrbitMLP | [`traj_reconstruction/outputs/replications.json`](traj_reconstruction/outputs/replications.json) |
+| VS13 vehicle length | [`length_estimation/replications.json`](length_estimation/replications.json) |
+| Simulated DopplerNet speed notebook | [`speed_estimation/replications.json`](speed_estimation/replications.json) |
+| Engine-acoustics synthesizer | [`engine_acoustics/replications.json`](engine_acoustics/replications.json) |
+
+`data_loading/` builds splits and does not train a model, so it has no replication record. The 91.9% speed-bin figure is in the `ctc_exp` record. It is the clip-level speed classifier, not the CTC decode and not the position ablation.
 
 ## Repository layout
 
@@ -51,6 +70,8 @@ DopplerLab/
 ├── speed_estimation/
 ├── engine_acoustics/
 ├── data_loading/
+├── ctc_exp/              # clip-level CTC retrieval
+├── position_ctc/         # canonical position from audio
 ├── notebooks/
 └── ref_docs/             # local write-ups and manuscript (not tracked)
 ```

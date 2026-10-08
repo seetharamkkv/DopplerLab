@@ -2,6 +2,8 @@
 
 Direction-of-travel experiments on **IDMT-Traffic** (NeurIPS Benchmark 2 — lateral pass-by).
 
+Saved runs are copied into [`outputs/replications.json`](outputs/replications.json), including eval metrics and any `run_config.json` that was stored with the checkpoint. `train_time_seconds` is null. The CTC position record is separate: [`../position_ctc/outputs/ablate/ablations.json`](../position_ctc/outputs/ablate/ablations.json).
+
 ## Setup
 
 ```bash

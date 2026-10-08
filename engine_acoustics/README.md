@@ -4,6 +4,8 @@ Physics-based **four-stroke engine acoustic synthesis** and **order-domain analy
 
 Designed to complement DopplerLab’s pass-by analysis tracks: use this package as a **source model** upstream of [DopplerSim 2.0](https://github.com/rohitharumugams/dopplersim_2.0), or validate synthesized audio with existing mel / envelope tooling.
 
+There is no trained score. The synthesizer specification is in [`replications.json`](replications.json), with `train_time_seconds` and metrics null.
+
 ---
 
 ## Physical model (summary)

@@ -6,6 +6,8 @@ Estimate **overall vehicle length** (metres) from a **single-microphone pass-by 
 
 **Approach:** two complementary tracks — interpretable physics / rule-based features (Phase A) and learned audio models (Phase B). The prediction target is always overall vehicle length (`length_m`); wheelbase is only an intermediate diagnostic if it helps explain the audio geometry.
 
+The replication record is [`replications.json`](replications.json). The numeric results there are the ones written in this README, because the eval JSON files are not in this checkout. `train_time_seconds` is null.
+
 ---
 
 ## VS13 dataset (required)

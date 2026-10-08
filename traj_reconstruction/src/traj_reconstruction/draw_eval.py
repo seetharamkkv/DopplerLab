@@ -231,6 +231,7 @@ def _score(pred: np.ndarray, gt: np.ndarray, *, duration_s: float) -> dict[str, 
         "path_length_gt_m": gt_len,
         "path_length_pred_m": pred_len,
         "orbit_reflected": bool(orb.reflected),
+        "orbit_rotation_rad": float(orb.rotation_rad),
         "n_frames": int(n),
     }
 

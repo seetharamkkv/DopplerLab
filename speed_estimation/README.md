@@ -6,6 +6,8 @@ This track is **notebook-first** today: training and evaluation live in Jupyter 
 
 **Question:** Can a model recover physically meaningful kinematics from Doppler-shifted spectrograms when geometry is known at generation time?
 
+This checkout has no completed DopplerNet score file. [`replications.json`](replications.json) records the notebook protocol and leaves metrics and `train_time_seconds` null.
+
 ---
 
 ## Tasks (simulated benchmarks)
