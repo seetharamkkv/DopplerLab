@@ -1,0 +1,16 @@
+{
+  "checkpoint_epoch": 149,
+  "test_evaluated": false,
+  "validation": {
+    "vx_mae": 3.0848445266485216,
+    "vy_mae": 5.2968794971704485,
+    "turning_vy_mae": 5.82682282394833,
+    "x_rmse": 10.614886155724525,
+    "y_rmse": 8.019494605064391,
+    "trajectory_rmse": 13.923605394363403,
+    "endpoint_error": 23.16874029636383,
+    "signed_mean_vx": 1.5668496873229742,
+    "signed_mean_vy": 0.637807814590633,
+    "zero_false_motion": 0.295102399917586
+  }
+}

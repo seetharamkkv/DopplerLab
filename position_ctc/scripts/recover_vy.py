@@ -37,10 +37,10 @@ from position_ctc.data import discover_clips, load_arrays, split_by_vehicle, sta
 from position_ctc.features import DATA_HOP, DATA_SR, N_MELS  # noqa: E402
 from position_ctc.motion_loss import _bin_index, zero_bin_balanced_nll  # noqa: E402
 from position_ctc.motion_model import _upsample_valid  # noqa: E402
+from position_ctc.paths import resolve_audio_clips  # noqa: E402
 from position_ctc.reconstruct import reconstruct  # noqa: E402
 from position_ctc.transitions import a_max_for_jump, transition_matrix  # noqa: E402
 
-DATA = Path("/Users/seetharamkkv/Desktop/Seetharam/CMU/projects/doppler/datasets/audio_clips")
 MOTION = ROOT / "position_ctc" / "outputs" / "motion"
 OUT = MOTION / "recovery"
 PARENT = MOTION / "motion_epoch38.pt"
@@ -500,7 +500,7 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     before = {str(path): _sha256(path) for path in PROTECTED}
     device = _device()
-    clips = discover_clips(DATA)
+    clips = discover_clips(resolve_audio_clips())
     print("auditing timestamps and renderer delay", flush=True)
     audit = _audit(clips)
     print(

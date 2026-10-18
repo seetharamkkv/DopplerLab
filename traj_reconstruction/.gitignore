@@ -1,6 +1,11 @@
 # Local simulated batches and caches
 checkpoints/
-outputs/
+outputs/**/*.pt
+outputs/**/*.npz
+outputs/**/*.wav
+outputs/**/*.WAV
+outputs/draw_eval_jobs/
+outputs/leakage/wav_only_staging/
 __pycache__/
 *.egg-info/
 .pytest_cache/

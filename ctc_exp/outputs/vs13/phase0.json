@@ -1,0 +1,115 @@
+{
+  "n_clips": 400,
+  "token_len_min": 6,
+  "token_len_max": 6,
+  "token_len_mean": 6.0,
+  "frac_apr_cpa_rec": 1.0,
+  "speed_token_hist": {
+    "V30": 23,
+    "V10": 78,
+    "V15": 95,
+    "V20": 109,
+    "V25": 95
+  },
+  "range_token_hist": {
+    "none": 400
+  },
+  "examples": [
+    {
+      "clip_id": "CitroenC4Picasso_101",
+      "vehicle": "CitroenC4Picasso",
+      "tokens": [
+        "V30",
+        "SIL",
+        "APR",
+        "CPA",
+        "REC",
+        "SIL"
+      ]
+    },
+    {
+      "clip_id": "CitroenC4Picasso_35",
+      "vehicle": "CitroenC4Picasso",
+      "tokens": [
+        "V10",
+        "SIL",
+        "APR",
+        "CPA",
+        "REC",
+        "SIL"
+      ]
+    },
+    {
+      "clip_id": "CitroenC4Picasso_38",
+      "vehicle": "CitroenC4Picasso",
+      "tokens": [
+        "V10",
+        "SIL",
+        "APR",
+        "CPA",
+        "REC",
+        "SIL"
+      ]
+    },
+    {
+      "clip_id": "CitroenC4Picasso_41",
+      "vehicle": "CitroenC4Picasso",
+      "tokens": [
+        "V10",
+        "SIL",
+        "APR",
+        "CPA",
+        "REC",
+        "SIL"
+      ]
+    },
+    {
+      "clip_id": "CitroenC4Picasso_44",
+      "vehicle": "CitroenC4Picasso",
+      "tokens": [
+        "V10",
+        "SIL",
+        "APR",
+        "CPA",
+        "REC",
+        "SIL"
+      ]
+    },
+    {
+      "clip_id": "CitroenC4Picasso_48",
+      "vehicle": "CitroenC4Picasso",
+      "tokens": [
+        "V15",
+        "SIL",
+        "APR",
+        "CPA",
+        "REC",
+        "SIL"
+      ]
+    },
+    {
+      "clip_id": "CitroenC4Picasso_51",
+      "vehicle": "CitroenC4Picasso",
+      "tokens": [
+        "V15",
+        "SIL",
+        "APR",
+        "CPA",
+        "REC",
+        "SIL"
+      ]
+    },
+    {
+      "clip_id": "CitroenC4Picasso_54",
+      "vehicle": "CitroenC4Picasso",
+      "tokens": [
+        "V15",
+        "SIL",
+        "APR",
+        "CPA",
+        "REC",
+        "SIL"
+      ]
+    }
+  ]
+}

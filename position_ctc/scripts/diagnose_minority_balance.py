@@ -31,8 +31,8 @@ from position_ctc.data import discover_clips, load_arrays, split_by_vehicle, sta
 from position_ctc.features import DATA_HOP, DATA_SR, features_from_wav  # noqa: E402
 from position_ctc.motion_loss import dominant_balanced_nll  # noqa: E402
 from position_ctc.motion_model import MotionNet  # noqa: E402
+from position_ctc.paths import resolve_audio_clips  # noqa: E402
 
-DATA = Path("/Users/seetharamkkv/Desktop/Seetharam/CMU/projects/doppler/datasets/audio_clips")
 OUT = ROOT / "position_ctc" / "outputs" / "motion" / "minority"
 DT = DATA_HOP / float(DATA_SR)
 DT_22050 = DATA_HOP / 22050.0
@@ -424,7 +424,7 @@ def _prediction_figure(state: np.ndarray, runs: list[dict], path: Path) -> None:
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     device = _device()
-    clips = discover_clips(DATA)
+    clips = discover_clips(resolve_audio_clips())
     splits = split_by_vehicle(clips, seed=0)
     train = [clips[i] for i in splits["train"]]
     print(f"device {device}  feature dt {DT:.6f} s ({DATA_SR / DATA_HOP:.2f} Hz)", flush=True)

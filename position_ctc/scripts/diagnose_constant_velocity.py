@@ -25,11 +25,11 @@ from position_ctc.data import discover_clips, load_arrays, split_by_vehicle, sta
 from position_ctc.features import DATA_HOP, DATA_SR  # noqa: E402
 from position_ctc.motion_model import MotionNet  # noqa: E402
 from position_ctc.transitions import DEFAULT_JUMP_MPS, a_max_for_jump, transition_matrix  # noqa: E402
+from position_ctc.paths import resolve_audio_clips  # noqa: E402
 from position_ctc.viterbi import viterbi  # noqa: E402
 
 DT = DATA_HOP / float(DATA_SR)
 OUT = ROOT / "position_ctc" / "outputs" / "motion" / "diagnose"
-DATA = Path("/Users/seetharamkkv/Desktop/Seetharam/CMU/projects/doppler/datasets/audio_clips")
 
 
 def _bin_hist(velocity: np.ndarray) -> np.ndarray:
@@ -70,7 +70,7 @@ def _heatmap(prob: np.ndarray, truth: np.ndarray, title: str, path: Path) -> Non
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
-    clips = discover_clips(DATA)
+    clips = discover_clips(resolve_audio_clips())
     splits = split_by_vehicle(clips, seed=0)
     train_idx = splits["train"]
     device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")

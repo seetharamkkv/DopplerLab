@@ -16,6 +16,7 @@ venv/
 
 # OS / editor
 .DS_Store
+**/.DS_Store
 Thumbs.db
 ~$*
 *.swp
@@ -59,7 +60,27 @@ setup_cache/
 !IDMT_experiments/outputs/
 !IDMT_experiments/outputs/**
 
-# Local docs and drafts (keep README.md)
+# Position / CTC replication records (metrics, reports, plots; not weights or caches)
+!position_ctc/outputs/
+!position_ctc/outputs/**
+position_ctc/outputs/**/cache/
+position_ctc/outputs/**/*.pt
+position_ctc/outputs/**/*.npz
+position_ctc/outputs/**/records.json
+position_ctc/outputs/**/*.jsonl
+position_ctc/outputs/**/.DS_Store
+!ctc_exp/outputs/
+!ctc_exp/outputs/**
+ctc_exp/outputs/**/*.pt
+ctc_exp/outputs/**/*.log
+!traj_reconstruction/outputs/
+!traj_reconstruction/outputs/**
+traj_reconstruction/outputs/**/*.pt
+traj_reconstruction/outputs/**/*.wav
+traj_reconstruction/outputs/draw_eval_jobs/
+traj_reconstruction/outputs/leakage/wav_only_staging/
+
+# Local docs and drafts (keep README.md and experiment reports)
 ref_docs/
 **/ref_docs/
 *.pdf
@@ -68,6 +89,14 @@ ref_docs/
 *.md
 !README.md
 !**/README.md
+!dataset_paths.example.json
+!position_ctc/ABLATIONS.md
+!position_ctc/history.md
+!ctc_exp/PLAN.md
+!position_ctc/outputs/**/*.md
+!ctc_exp/outputs/**/*.md
+!IDMT_experiments/outputs/**/*.md
+!traj_reconstruction/outputs/**/*.md
 
 # Local-only / heavy tracks
 diffusion_model/

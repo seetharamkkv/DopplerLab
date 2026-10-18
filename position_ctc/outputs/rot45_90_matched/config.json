@@ -1,0 +1,23 @@
+{
+  "sample_rate": 44100,
+  "n_fft": 2048,
+  "hop": 512,
+  "hidden": 96,
+  "freq_pool": 64,
+  "vmax": 30.0,
+  "bin_width": 2.0,
+  "sigma": 1.0,
+  "vy_balance": 0.0,
+  "ctc_weight": 0.0,
+  "penalty": 0.25,
+  "max_jump": 6.0,
+  "decoder": "viterbi",
+  "mode": "framewise",
+  "architecture": "pool64_layernorm_residual",
+  "initialized_from": null,
+  "position_scale_m": 10.0,
+  "position_huber_delta": 1.0,
+  "path_weight": 1.0,
+  "path_warmup_fraction": 0.1,
+  "lr": 0.001
+}

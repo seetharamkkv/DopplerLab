@@ -7,7 +7,7 @@ Recover an **observer-centered trajectory orbit** from monaural vehicle pass-by 
 
 **End product (across phases):** `audio → model → rotatable trajectory image about the observer`, with no metadata at inference.
 
-The saved OrbitMLP evaluation is recorded in [`outputs/replications.json`](outputs/replications.json). `train_time_seconds` is null. CTC position ablations are a different track: [`../position_ctc/outputs/ablate/ablations.json`](../position_ctc/outputs/ablate/ablations.json).
+The saved OrbitMLP evaluation is recorded in [`outputs/replications.json`](outputs/replications.json) (validation orbit RMS mean **8.38 m** on 200 clips). The full per-clip dump is [`outputs/eval_orbit_mlp.json`](outputs/eval_orbit_mlp.json). `train_time_seconds` is null. CTC position ablations are a different track: [`../position_ctc/outputs/ablate/ablations.json`](../position_ctc/outputs/ablate/ablations.json).
 
 Phase checklists: [`../ref_docs/checklists/`](../ref_docs/checklists/). Design plan: [`../ref_docs/trajectory_orbit_plan.md`](../ref_docs/trajectory_orbit_plan.md).
 

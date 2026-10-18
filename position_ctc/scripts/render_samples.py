@@ -22,9 +22,9 @@ sys.path.insert(0, str(ROOT / "position_ctc" / "src"))
 from position_ctc.data import discover_clips, load_arrays, split_by_vehicle  # noqa: E402
 from position_ctc.features import DATA_HOP, DATA_SR  # noqa: E402
 from position_ctc.metrics import align_path, range_m, score_path  # noqa: E402
+from position_ctc.paths import resolve_audio_clips  # noqa: E402
 
 DT = DATA_HOP / float(DATA_SR)
-DATA = Path("/Users/seetharamkkv/Desktop/Seetharam/CMU/projects/doppler/datasets/audio_clips")
 CKPT = ROOT / "position_ctc" / "outputs" / "ablate" / "range_polar_ft.pt"
 OUT = ROOT / "position_ctc" / "outputs" / "ablate" / "samples"
 GT_COLOR = "#1f4e79"
@@ -151,7 +151,7 @@ def _markdown(chosen: list[dict]) -> str:
 
 def main() -> None:
     ablate = _load_ablate()
-    clips = discover_clips(DATA)
+    clips = discover_clips(resolve_audio_clips())
     splits = split_by_vehicle(clips, seed=0)
     device = ablate._device()
     model = ablate.PositionModel("range_polar").to(device)

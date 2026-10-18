@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "staged_wav": "outputs/leakage/wav_only_staging/sample_0000000_straight_32.1mps.wav",
+  "files_in_staging": [
+    "sample_0000000_straight_32.1mps.wav"
+  ],
+  "artifacts": {
+    "json": "outputs/leakage/wav_only_product/orbit_product.json",
+    "png": "outputs/leakage/wav_only_product/orbit_product.png",
+    "html": "outputs/leakage/wav_only_product/orbit_product.html"
+  },
+  "mirror_ambiguous": true,
+  "heading_absolute": false
+}

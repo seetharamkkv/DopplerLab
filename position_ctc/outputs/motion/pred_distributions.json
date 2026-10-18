@@ -1,0 +1,112 @@
+{
+  "split": "vehicle holdout seed 0, test vehicles Kia Sportage and Renault Captur",
+  "clips": 200,
+  "frames": 164724,
+  "bin_step_mps": 2.0,
+  "alphabet_mps": [
+    -30.0,
+    30.0
+  ],
+  "dominant_bin_mps": {
+    "vx": 14.0,
+    "vy": 0.0
+  },
+  "runs": {
+    "mean": {
+      "checkpoint": "position_ctc/outputs/motion/motion.pt",
+      "label": "epoch 35, ordinary CE",
+      "vx": {
+        "mean_prob_on_true_bin": 0.320744489442838,
+        "dominant_prob_on_true_bin": 0.39652313819931667,
+        "minority_prob_on_true_bin": 0.2166850437206797,
+        "mean_distribution_entropy_nats": 1.2968512368394012,
+        "dominant_bin_mps": 14.0,
+        "dominant_frame_fraction": 0.5786284937228333,
+        "confidence": {
+          "mean_max_probability": 0.49402058124542236,
+          "median_max_probability": 0.5020667314529419,
+          "fraction_above_0.5": 0.5101078167115903,
+          "fraction_above_0.9": 0.0
+        }
+      },
+      "vy": {
+        "mean_prob_on_true_bin": 0.45764331077513093,
+        "dominant_prob_on_true_bin": 0.6594214694462627,
+        "minority_prob_on_true_bin": 0.1278138145201794,
+        "mean_distribution_entropy_nats": 1.6654390792752796,
+        "dominant_bin_mps": 0.0,
+        "dominant_frame_fraction": 0.620437823268012,
+        "confidence": {
+          "mean_max_probability": 0.5477380156517029,
+          "median_max_probability": 0.5987343192100525,
+          "fraction_above_0.5": 0.5892037590150798,
+          "fraction_above_0.9": 0.02495082683761929
+        }
+      }
+    },
+    "dominant": {
+      "checkpoint": "position_ctc/outputs/motion/balance_dominant/motion.pt",
+      "label": "epoch 19, dominant balance",
+      "vx": {
+        "mean_prob_on_true_bin": 0.373108053918322,
+        "dominant_prob_on_true_bin": 0.4795421897545186,
+        "minority_prob_on_true_bin": 0.2269524103065767,
+        "mean_distribution_entropy_nats": 1.3097788313248713,
+        "dominant_bin_mps": 14.0,
+        "dominant_frame_fraction": 0.5786284937228333,
+        "confidence": {
+          "mean_max_probability": 0.49503591656684875,
+          "median_max_probability": 0.512861967086792,
+          "fraction_above_0.5": 0.6030390228503436,
+          "fraction_above_0.9": 0.0
+        }
+      },
+      "vy": {
+        "mean_prob_on_true_bin": 0.4399063558874309,
+        "dominant_prob_on_true_bin": 0.6389846047449314,
+        "minority_prob_on_true_bin": 0.1144901712596075,
+        "mean_distribution_entropy_nats": 1.599505906468981,
+        "dominant_bin_mps": 0.0,
+        "dominant_frame_fraction": 0.620437823268012,
+        "confidence": {
+          "mean_max_probability": 0.5459216237068176,
+          "median_max_probability": 0.5677080154418945,
+          "fraction_above_0.5": 0.6060440494402759,
+          "fraction_above_0.9": 0.06124183482674049
+        }
+      }
+    },
+    "frequency": {
+      "checkpoint": "position_ctc/outputs/motion/balance_frequency/motion.pt",
+      "label": "epoch 18, frequency balance",
+      "vx": {
+        "mean_prob_on_true_bin": 0.21010330493752666,
+        "dominant_prob_on_true_bin": 0.20785614000947403,
+        "minority_prob_on_true_bin": 0.21318911790327238,
+        "mean_distribution_entropy_nats": 1.776495668074064,
+        "dominant_bin_mps": 14.0,
+        "dominant_frame_fraction": 0.5786284937228333,
+        "confidence": {
+          "mean_max_probability": 0.2870056629180908,
+          "median_max_probability": 0.2899470925331116,
+          "fraction_above_0.5": 0.0,
+          "fraction_above_0.9": 0.0
+        }
+      },
+      "vy": {
+        "mean_prob_on_true_bin": 0.2313100986612647,
+        "dominant_prob_on_true_bin": 0.2965120697398925,
+        "minority_prob_on_true_bin": 0.12473001379318668,
+        "mean_distribution_entropy_nats": 2.4369194780809535,
+        "dominant_bin_mps": 0.0,
+        "dominant_frame_fraction": 0.620437823268012,
+        "confidence": {
+          "mean_max_probability": 0.2799426019191742,
+          "median_max_probability": 0.23358389735221863,
+          "fraction_above_0.5": 0.13265826473373643,
+          "fraction_above_0.9": 0.0
+        }
+      }
+    }
+  }
+}

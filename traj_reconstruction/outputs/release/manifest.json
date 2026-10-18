@@ -1,0 +1,13 @@
+{
+  "package": "traj-reconstruction",
+  "version": "0.8.0",
+  "data_scope": "simulated_dopplersim_only",
+  "inference_allowed": [
+    "spectrograms/stft.npy"
+  ],
+  "inference_forbidden_count": 22,
+  "schema": "DopplerSim Phase 1 / traj_reconstruction tier1 freehand",
+  "real_transfer": "deferred",
+  "leakage_ok": true,
+  "product_ux": "Phase 5 HTML orbit viewer"
+}

@@ -1,3 +1,5 @@
-outputs/
 checkpoints/
 *.pt
+outputs/**/cache/
+outputs/**/*.npz
+outputs/**/records.json

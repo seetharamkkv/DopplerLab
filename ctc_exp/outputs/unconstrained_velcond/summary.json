@@ -1,0 +1,101 @@
+{
+  "test_n": 148,
+  "speed_bin_acc": 0.918918918918919,
+  "orbit_rms_m": 38.39337847806371,
+  "vel_mae_mps": 4.421194943843939,
+  "speed_mag_mae_mps": 2.435303566455621,
+  "pred_speed_hist": {
+    "V30": 13,
+    "V20": 28,
+    "V25": 29,
+    "V10": 40,
+    "V15": 38
+  },
+  "true_speed_hist": {
+    "V25": 33,
+    "V20": 31,
+    "V10": 40,
+    "V15": 38,
+    "V30": 6
+  },
+  "examples": [
+    {
+      "clip_id": "sample_0000586",
+      "v_ref": "V25",
+      "v_hyp": "V30",
+      "v_ok": 0,
+      "orbit_rms_m": 39.90335037533347,
+      "vel_mae": 9.825377903853926,
+      "speed_mag_mae": 4.240495936701723
+    },
+    {
+      "clip_id": "sample_0000314",
+      "v_ref": "V20",
+      "v_hyp": "V20",
+      "v_ok": 1,
+      "orbit_rms_m": 39.60190990403334,
+      "vel_mae": 4.701077676944752,
+      "speed_mag_mae": 2.388494934188778
+    },
+    {
+      "clip_id": "sample_0000665",
+      "v_ref": "V20",
+      "v_hyp": "V20",
+      "v_ok": 1,
+      "orbit_rms_m": 38.55719225320299,
+      "vel_mae": 4.464565586947116,
+      "speed_mag_mae": 1.978210100995206
+    },
+    {
+      "clip_id": "sample_0000750",
+      "v_ref": "V25",
+      "v_hyp": "V25",
+      "v_ok": 1,
+      "orbit_rms_m": 42.79789116373906,
+      "vel_mae": 6.2568700414883915,
+      "speed_mag_mae": 3.2136390186100665
+    },
+    {
+      "clip_id": "sample_0000695",
+      "v_ref": "V10",
+      "v_hyp": "V10",
+      "v_ok": 1,
+      "orbit_rms_m": 40.80505237913637,
+      "vel_mae": 2.502063394269552,
+      "speed_mag_mae": 1.573072478906661
+    },
+    {
+      "clip_id": "sample_0000507",
+      "v_ref": "V10",
+      "v_hyp": "V10",
+      "v_ok": 1,
+      "orbit_rms_m": 36.97103228880963,
+      "vel_mae": 5.750934255165848,
+      "speed_mag_mae": 2.582580193338968
+    },
+    {
+      "clip_id": "sample_0000920",
+      "v_ref": "V10",
+      "v_hyp": "V10",
+      "v_ok": 1,
+      "orbit_rms_m": 36.698739002544094,
+      "vel_mae": 2.1431861394580447,
+      "speed_mag_mae": 0.9149467930052869
+    },
+    {
+      "clip_id": "sample_0000349",
+      "v_ref": "V10",
+      "v_hyp": "V10",
+      "v_ok": 1,
+      "orbit_rms_m": 34.872337926773,
+      "vel_mae": 2.3579803316483536,
+      "speed_mag_mae": 1.1498852111562432
+    }
+  ],
+  "majority_speed_bin_acc": 0.20945945945945946,
+  "majority_token": "V20",
+  "best_val_loss": 5.507846793612918,
+  "epochs": 200,
+  "stopped_at": 77,
+  "best_epoch": 57
+}

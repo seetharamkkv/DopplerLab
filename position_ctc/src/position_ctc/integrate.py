@@ -53,9 +53,13 @@ def integrate_trapezoid(
     xy[0, 1] = float(y0)
     if vx.size == 1:
         return xy
-    step = float(dt)
-    xy[1:, 0] = xy[0, 0] + np.cumsum(0.5 * (vx[:-1] + vx[1:]) * step)
-    xy[1:, 1] = xy[0, 1] + np.cumsum(0.5 * (vy[:-1] + vy[1:]) * step)
+    dt_arr = np.asarray(dt, dtype=np.float64)
+    if dt_arr.ndim == 0:
+        dt_arr = np.full(vx.size - 1, float(dt_arr))
+    elif dt_arr.shape != (vx.size - 1,):
+        raise ValueError("dt must be a scalar or one value per step")
+    xy[1:, 0] = xy[0, 0] + np.cumsum(0.5 * (vx[:-1] + vx[1:]) * dt_arr)
+    xy[1:, 1] = xy[0, 1] + np.cumsum(0.5 * (vy[:-1] + vy[1:]) * dt_arr)
     return xy
 
 

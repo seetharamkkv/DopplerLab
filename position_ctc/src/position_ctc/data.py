@@ -96,6 +96,54 @@ def load_arrays(clip: Clip) -> tuple[np.ndarray, np.ndarray]:
     return trim_stationary(feat[:, :n], state[:n])
 
 
+SOUND_SPEED_MPS = 343.0
+
+
+def window_bounds(
+    times: np.ndarray,
+    state: np.ndarray,
+    *,
+    sound_speed: float = SOUND_SPEED_MPS,
+    stationary: float = 0.5,
+) -> tuple[int, int, int]:
+    """Supervised motion span and the audio end that still hears it.
+
+    ``start:stop`` are the moving frames. ``start:audio_end`` also keeps the
+    trailing frames whose sound includes the propagation delay of that motion.
+    Labels stay on the observer-time grid; the tail is context, not a target.
+    """
+    times = np.asarray(times, dtype=np.float64)
+    speed = np.hypot(state[:, 1], state[:, 3])
+    moving = np.flatnonzero(speed > stationary)
+    if moving.size == 0:
+        raise ValueError("clip has no moving frames")
+    start = int(moving[0])
+    stop = int(moving[-1]) + 1
+    delay = np.hypot(state[start:stop, 0], state[start:stop, 2]) / float(sound_speed)
+    last_arrival = float(np.max(times[start:stop] + delay))
+    arrival_index = int(np.searchsorted(times, last_arrival, side="left"))
+    audio_end = min(int(times.shape[0]), max(stop, arrival_index + 1))
+    return start, stop, audio_end
+
+
+def load_motion_window(clip: Clip) -> dict:
+    """Features, observer-time state, and timestamps, with the trailing tail kept."""
+    feat = features_from_wav(clip.wav_path)
+    state = np.load(clip.sample_dir / "metadata" / "canonical_state_frames.npy").astype(np.float32)
+    times = np.load(clip.sample_dir / "metadata" / "frame_times.npy").astype(np.float64)
+    n = min(feat.shape[1], state.shape[0], times.shape[0])
+    start, stop, end = window_bounds(times[:n], state[:n])
+    return {
+        "clip_id": clip.clip_id,
+        "vehicle": clip.vehicle,
+        "feat": np.ascontiguousarray(feat[:, start:end]),
+        "state": np.ascontiguousarray(state[start:end]),
+        "times": np.ascontiguousarray(times[start:end]),
+        "n_super": int(stop - start),
+        "n_audio": int(end - start),
+    }
+
+
 def augment_features(feat: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     """Spectral tilt and a frequency mask. Gain is removed by later standardization."""
     out = feat.copy()

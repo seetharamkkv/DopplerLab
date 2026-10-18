@@ -1,0 +1,131 @@
+{
+  "config": {
+    "architecture": "temporal Conv1d, two stride-2 pools, BiLSTM, linear upsample to the label clock",
+    "heads": [
+      "vel_x",
+      "vel_y",
+      "ctc_x",
+      "ctc_y"
+    ],
+    "removed": [
+      "position",
+      "acceleration",
+      "bearing/range",
+      "consistency",
+      "integrated training loss",
+      "initial-position conditioning"
+    ],
+    "epochs": 40,
+    "batch_size": 8,
+    "seed": 0,
+    "lr": 0.001,
+    "weights": {
+      "sigma_mps": 2.0,
+      "ctc": 0.25
+    },
+    "mag_mean_std": [
+      2.300551039374443,
+      3.1673950483746904
+    ],
+    "phase_mean_std": [
+      -4.30185344729842e-05,
+      0.25478627169641
+    ],
+    "decoder": {
+      "jump_mps_per_frame": 6.0,
+      "frame_dt_s": 0.011609977324263039,
+      "implied_acceleration_mps2": 516.796875,
+      "transition_lambda": 1.0,
+      "note": "6 m/s per frame is the audited graded Viterbi limit, not a realistic acceleration bound"
+    },
+    "gradients": {
+      "conv": 0.335,
+      "ctc_x": 0.2812,
+      "ctc_y": 0.08044,
+      "rnn": 0.6654,
+      "vel_x": 2.259,
+      "vel_y": 1.956
+    },
+    "coverage": {
+      "clips": 1300,
+      "mean_tail_frames": 18.023076923076925,
+      "hot_frames": 257007,
+      "hot_covered": 257007,
+      "hot_past_audio": 0
+    },
+    "plot_clips": [
+      "sample_0000002",
+      "sample_0000347",
+      "sample_0000741",
+      "sample_0001013",
+      "sample_0000014",
+      "sample_0000287",
+      "sample_0000646",
+      "sample_0001047",
+      "sample_0000172",
+      "sample_0000498"
+    ]
+  },
+  "epoch38_val": {
+    "vx_mae": 1.0359560719971856,
+    "vy_mae": 1.5659028380168365,
+    "vy_turn_mae": 4.1828680018122535,
+    "zero_false_motion": 0.0,
+    "trajectory_rmse_m": 7.087489868840404,
+    "max_lateral_m": 9.448609531149268,
+    "anchor_error_m": 0.0,
+    "forbidden_steps": 0.0
+  },
+  "best_path": {
+    "epoch": 10,
+    "val": {
+      "vx_mae": 1.1534301164051686,
+      "vy_mae": 1.5710571537920572,
+      "vy_turn_mae": 4.141291838570713,
+      "zero_false_motion": 0.011214212175938447,
+      "trajectory_rmse_m": 8.06488911205977,
+      "max_lateral_m": 9.470140648111702,
+      "anchor_error_m": 0.0,
+      "forbidden_steps": 0.0
+    },
+    "train": {}
+  },
+  "best_turn": {
+    "epoch": 6,
+    "val": {
+      "vx_mae": 1.2168305796309924,
+      "vy_mae": 1.6031712733106258,
+      "vy_turn_mae": 3.9484003684746045,
+      "zero_false_motion": 0.08811757901344855,
+      "trajectory_rmse_m": 8.214035938278432,
+      "max_lateral_m": 9.743517194017768,
+      "anchor_error_m": 0.0,
+      "forbidden_steps": 0.0
+    },
+    "train": {}
+  },
+  "turn_improved_over_epoch38": true,
+  "selected_is_turn_recovery": false,
+  "best_path_train": {
+    "vx_mae": 1.1050735017093303,
+    "vy_mae": 1.5916630036266863,
+    "vy_turn_mae": 4.329533870846464,
+    "zero_false_motion": 0.015415811351514203,
+    "trajectory_rmse_m": 7.807432376174529,
+    "max_lateral_m": 9.788315115513074,
+    "anchor_error_m": 0.0,
+    "forbidden_steps": 0.0
+  },
+  "best_path_val": {
+    "vx_mae": 1.1534301164051686,
+    "vy_mae": 1.5710571537920572,
+    "vy_turn_mae": 4.141291838570713,
+    "zero_false_motion": 0.011214212175938447,
+    "trajectory_rmse_m": 8.06488911205977,
+    "max_lateral_m": 9.470140648111702,
+    "anchor_error_m": 0.0,
+    "forbidden_steps": 0.0
+  },
+  "history": [],
+  "protected_unchanged": true
+}

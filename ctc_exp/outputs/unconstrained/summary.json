@@ -1,0 +1,90 @@
+{
+  "test_n": 148,
+  "speed_bin_acc": 0.9256756756756757,
+  "orbit_rms_m": 71.29409891239841,
+  "vel_mae_mps": 5.817753609473887,
+  "pred_speed_hist": {
+    "V25": 34,
+    "V20": 26,
+    "V10": 38,
+    "V15": 42,
+    "V30": 8
+  },
+  "true_speed_hist": {
+    "V25": 33,
+    "V20": 31,
+    "V10": 40,
+    "V15": 38,
+    "V30": 6
+  },
+  "examples": [
+    {
+      "clip_id": "sample_0000586",
+      "v_ref": "V25",
+      "v_hyp": "V25",
+      "v_ok": 1,
+      "orbit_rms_m": 56.75212942915815,
+      "vel_mae": 10.52562572518642
+    },
+    {
+      "clip_id": "sample_0000314",
+      "v_ref": "V20",
+      "v_hyp": "V20",
+      "v_ok": 1,
+      "orbit_rms_m": 57.58745115139064,
+      "vel_mae": 3.5703507545674413
+    },
+    {
+      "clip_id": "sample_0000665",
+      "v_ref": "V20",
+      "v_hyp": "V20",
+      "v_ok": 1,
+      "orbit_rms_m": 59.32982194158652,
+      "vel_mae": 4.063398736360561
+    },
+    {
+      "clip_id": "sample_0000750",
+      "v_ref": "V25",
+      "v_hyp": "V25",
+      "v_ok": 1,
+      "orbit_rms_m": 43.913366784230256,
+      "vel_mae": 7.215312754078204
+    },
+    {
+      "clip_id": "sample_0000695",
+      "v_ref": "V10",
+      "v_hyp": "V10",
+      "v_ok": 1,
+      "orbit_rms_m": 99.53779454029058,
+      "vel_mae": 5.70969456331868
+    },
+    {
+      "clip_id": "sample_0000507",
+      "v_ref": "V10",
+      "v_hyp": "V15",
+      "v_ok": 0,
+      "orbit_rms_m": 94.99865434596083,
+      "vel_mae": 7.417098740243855
+    },
+    {
+      "clip_id": "sample_0000920",
+      "v_ref": "V10",
+      "v_hyp": "V10",
+      "v_ok": 1,
+      "orbit_rms_m": 89.26119574807933,
+      "vel_mae": 5.600300476732459
+    },
+    {
+      "clip_id": "sample_0000349",
+      "v_ref": "V10",
+      "v_hyp": "V10",
+      "v_ok": 1,
+      "orbit_rms_m": 88.13781814799566,
+      "vel_mae": 5.6656237563557506
+    }
+  ],
+  "majority_speed_bin_acc": 0.20945945945945946,
+  "majority_token": "V20",
+  "best_val_loss": 0.25762857456465027,
+  "epochs": 200
+}

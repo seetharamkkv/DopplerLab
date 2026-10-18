@@ -1,0 +1,15 @@
+{
+  "file_purpose": "Headline OrbitMLP numbers copied from eval_orbit_mlp.json after stripping machine-local paths.",
+  "experiment_name": "traj_reconstruction OrbitMLP on simulated Phase 1 paths",
+  "train_time_seconds": null,
+  "headline_metric": "orbit_rms_m after Procrustes rotation +/- reflection about the microphone",
+  "n_train": 800,
+  "n_val": 200,
+  "seed": 0,
+  "val_orbit_rms_m_mean": 8.38046906302143,
+  "val_orbit_rms_m_median": 8.48494424784055,
+  "train_orbit_rms_m_mean": 8.407313873016458,
+  "source": "traj_reconstruction/outputs/eval_orbit_mlp.json",
+  "checkpoint_in_repo": false,
+  "note": "Weights are not in git. Retrain with traj_reconstruction/scripts/eval_orbit_mlp.py against a local DopplerSim batch."
+}

@@ -32,9 +32,9 @@ from position_ctc.features import DATA_HOP, DATA_SR  # noqa: E402
 from position_ctc.integrate import integrate_trapezoid  # noqa: E402
 from position_ctc.motion_model import MotionNet  # noqa: E402
 from position_ctc.reconstruct import reconstruct  # noqa: E402
+from position_ctc.paths import resolve_audio_clips  # noqa: E402
 from position_ctc.transitions import a_max_for_jump, transition_matrix  # noqa: E402
 
-DATA = Path("/Users/seetharamkkv/Desktop/Seetharam/CMU/projects/doppler/datasets/audio_clips")
 OUT = ROOT / "position_ctc" / "outputs" / "motion" / "compare"
 CKPT_DIR = ROOT / "position_ctc" / "outputs" / "motion"
 DT = DATA_HOP / float(DATA_SR)
@@ -242,7 +242,7 @@ def main() -> None:
     previous, prev_meta = _load(CKPT_DIR / "motion_polar_epoch27.pt", zero_origin=True, device=device)
     current, curr_meta = _load(CKPT_DIR / "motion.pt", zero_origin=False, device=device)
     epoch38, meta38 = _load(CKPT_DIR / "motion_epoch38.pt", zero_origin=True, device=device)
-    clips = discover_clips(DATA)
+    clips = discover_clips(resolve_audio_clips())
     by_id = {clip.clip_id: clip for clip in clips}
     test_ids = {clips[i].clip_id for i in split_by_vehicle(clips, seed=0)["test"]}
     missing = [clip_id for clip_id in PLOT_IDS if clip_id not in by_id]

@@ -1,0 +1,5 @@
+{
+  "vs13": "/path/to/vs13_passbys",
+  "dopplersim_test_dataset": "/path/to/dopplersim_test_dataset",
+  "dopplersim_unconstrained": "/path/to/dopplersim_unconstrained"
+}

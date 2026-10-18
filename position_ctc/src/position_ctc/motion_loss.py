@@ -352,3 +352,268 @@ class MotionObjective(nn.Module):
         """
         pred = integrate_expected(vel, gt_xy[:, :1], valid, dt)
         return _masked_mean(_huber_axes((pred - gt_xy) / PATH_SCALE_M), valid)
+
+
+@dataclass(frozen=True)
+class FullWeights:
+    dist: float = 1.0
+    beta: float = 0.5
+    ctc: float = 0.25
+    integrated: float = 1.0
+    direct: float = 0.5
+    acceleration: float = 0.25
+    position_velocity: float = 0.25
+    velocity_acceleration: float = 0.25
+
+
+def strict_bin_index(velocity: torch.Tensor, valid: torch.Tensor) -> torch.Tensor:
+    """Nearest bin. Supervised targets outside the alphabet raise instead of clipping."""
+    lo = VEL_MIN_MPS / VEL_STEP_MPS
+    hi = VEL_MAX_MPS / VEL_STEP_MPS
+    checked = velocity[valid]
+    if checked.numel() and (bool((checked < VEL_MIN_MPS - 1e-3).any()) or bool((checked > VEL_MAX_MPS + 1e-3).any())):
+        raise RuntimeError(
+            f"velocity target outside [{VEL_MIN_MPS}, {VEL_MAX_MPS}] m/s: "
+            f"{float(checked.min()):.3f}..{float(checked.max()):.3f}"
+        )
+    k = torch.round(velocity / VEL_STEP_MPS)
+    idx = (k - lo).to(torch.long)
+    supervised = idx[valid]
+    if supervised.numel() and (bool((supervised < 0).any()) or bool((supervised >= N_VEL).any())):
+        raise RuntimeError("rounded velocity bin fell outside the alphabet")
+    return idx
+
+
+class FullObjective(nn.Module):
+    """Dense velocity, CTC, integrated position, and auxiliary kinematic terms.
+
+    ``Lx`` and ``Ly`` are always on. The remaining terms are multiplied by
+    ``aux_scale``, which the training loop ramps from 0 to 1. CTC blank is
+    class 0 and is not the zero-velocity bin. Infeasible CTC targets raise.
+    """
+
+    def __init__(self, weights: FullWeights | None = None, jump_mps: float = DEFAULT_JUMP_MPS, scales: dict | None = None):
+        super().__init__()
+        self.weights = weights or FullWeights()
+        self.jump_mps = float(jump_mps)
+        centers = torch.arange(N_VEL, dtype=torch.float32) * VEL_STEP_MPS + VEL_MIN_MPS
+        self.register_buffer("centers", centers)
+        scales = scales or {}
+        for name, default in (("s_vx", 1.0), ("s_vy", 1.0), ("s_x", 1.0), ("s_y", 1.0), ("s_ax", 1.0), ("s_ay", 1.0)):
+            self.register_buffer(name, torch.tensor(float(scales.get(name, default))))
+        self.ctc = nn.CTCLoss(blank=0, zero_infinity=False)
+
+    def forward(
+        self,
+        pred: dict[str, torch.Tensor],
+        state: torch.Tensor,
+        times: torch.Tensor,
+        super_lengths: torch.Tensor,
+        aux_scale: float,
+    ) -> tuple[torch.Tensor, dict[str, float]]:
+        valid = torch.arange(state.shape[1], device=state.device)[None, :] < super_lengths[:, None]
+        vx = state[..., 1]
+        vy = state[..., 3]
+        gt_xy = torch.stack((state[..., 0], state[..., 2]), dim=-1)
+        bins_x = strict_bin_index(vx, valid)
+        bins_y = strict_bin_index(vy, valid)
+        ell_x = self._ell(pred["vel_x"], vx, bins_x, self.s_vx)
+        ell_y = self._ell(pred["vel_y"], vy, bins_y, self.s_vy)
+        lx = _masked_mean(ell_x, valid)
+        ordinary_y = _masked_mean(ell_y, valid)
+        zero_index = int(round((0.0 - float(VEL_MIN_MPS)) / float(VEL_STEP_MPS)))
+        balanced_y = zero_bin_balanced_nll(ell_y, bins_y, valid, zero_index)
+        ly = (1.0 - self.weights.beta) * ordinary_y + self.weights.beta * balanced_y
+        expected = torch.stack(
+            (pred["vel_x"].softmax(-1) @ self.centers, pred["vel_y"].softmax(-1) @ self.centers),
+            dim=-1,
+        )
+        anchor = gt_xy[:, :1]
+        direct = anchor + pred["disp"] - pred["disp"][:, :1]
+        ctc = self._ctc(pred["ctc_x"], bins_x, super_lengths) + self._ctc(pred["ctc_y"], bins_y, super_lengths)
+        integrated = self._integrated(expected, gt_xy, times, valid)
+        direct_loss = _masked_mean(self._position_huber(direct, gt_xy), valid)
+        acc_loss, va_loss, pv_loss = self._kinematic(expected, direct, pred["acc"], state, times, valid)
+        aux = (
+            self.weights.ctc * ctc
+            + self.weights.integrated * integrated
+            + self.weights.direct * direct_loss
+            + self.weights.acceleration * acc_loss
+            + self.weights.position_velocity * pv_loss
+            + self.weights.velocity_acceleration * va_loss
+        )
+        total = lx + ly + float(aux_scale) * aux
+        parts = {
+            "vx": float(lx.detach()),
+            "vy": float(ly.detach()),
+            "ctc": float(ctc.detach()),
+            "integrated": float(integrated.detach()),
+            "direct": float(direct_loss.detach()),
+            "acceleration": float(acc_loss.detach()),
+            "pv": float(pv_loss.detach()),
+            "va": float(va_loss.detach()),
+            "aux_scale": float(aux_scale),
+            "total": float(total.detach()),
+        }
+        return total, parts
+
+    def _ell(self, logits: torch.Tensor, velocity: torch.Tensor, bins: torch.Tensor, scale: torch.Tensor) -> torch.Tensor:
+        ce = F.cross_entropy(logits.reshape(-1, int(self.centers.shape[0])), bins.reshape(-1), reduction="none")
+        ce = ce.view(velocity.shape)
+        dist = expected_distance(logits.softmax(-1), velocity, self.centers, float(scale))
+        return ce + self.weights.dist * dist
+
+    def _ctc(self, logits: torch.Tensor, bins: torch.Tensor, lengths: torch.Tensor) -> torch.Tensor:
+        targets: list[torch.Tensor] = []
+        tgt_len: list[int] = []
+        for i in range(bins.shape[0]):
+            n = int(lengths[i])
+            if n < 1:
+                raise RuntimeError("CTC received an empty supervised interval")
+            collapsed = collapse_runs(bins[i, :n].detach().cpu().numpy())
+            if int(collapsed.size) < 1 or int(collapsed.size) > n:
+                raise RuntimeError(f"CTC target length {int(collapsed.size)} is not feasible for {n} frames")
+            targets.append(torch.as_tensor(collapsed + 1, dtype=torch.long))
+            tgt_len.append(int(collapsed.size))
+        target = torch.cat(targets).to(logits.device)
+        if int(target.min()) < 1:
+            raise RuntimeError("CTC target used the blank class as a velocity")
+        in_len = lengths.to(dtype=torch.long, device=logits.device)
+        tgt = torch.tensor(tgt_len, dtype=torch.long, device=logits.device)
+        logp = logits.log_softmax(dim=-1).transpose(0, 1)
+        return self.ctc(logp, target, in_len, tgt) / in_len.to(logits.dtype).mean().clamp(min=1.0)
+
+    def _position_huber(self, pred: torch.Tensor, truth: torch.Tensor) -> torch.Tensor:
+        scale = torch.stack((self.s_x, self.s_y)).to(device=pred.device, dtype=pred.dtype).clamp(min=1e-3)
+        return _huber_axes((pred - truth) / scale)
+
+    def _integrated(
+        self,
+        vel: torch.Tensor,
+        gt_xy: torch.Tensor,
+        times: torch.Tensor,
+        valid: torch.Tensor,
+    ) -> torch.Tensor:
+        dt = times[:, 1:] - times[:, :-1]
+        step_ok = valid[:, 1:] & valid[:, :-1]
+        safe_dt = torch.where(step_ok, dt, torch.ones_like(dt))
+        step = 0.5 * (vel[:, :-1] + vel[:, 1:]) * safe_dt.unsqueeze(-1)
+        step = step * step_ok.unsqueeze(-1).to(dtype=vel.dtype)
+        pred = torch.cat((gt_xy[:, :1], gt_xy[:, :1] + torch.cumsum(step, dim=1)), dim=1)
+        return _masked_mean(self._position_huber(pred, gt_xy), valid)
+
+    def _kinematic(
+        self,
+        vel: torch.Tensor,
+        direct: torch.Tensor,
+        acc: torch.Tensor,
+        state: torch.Tensor,
+        times: torch.Tensor,
+        valid: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        dt = times[:, 1:] - times[:, :-1]
+        step_ok = valid[:, 1:] & valid[:, :-1]
+        safe_dt = torch.where(step_ok, dt, torch.ones_like(dt))
+        label_v = torch.stack((state[..., 1], state[..., 3]), dim=-1)
+        label_xy = torch.stack((state[..., 0], state[..., 2]), dim=-1)
+        delta_v = label_v[:, 1:] - label_v[:, :-1]
+        jump = delta_v.abs().amax(dim=-1) > self.jump_mps
+        implied = (label_xy[:, 1:] - label_xy[:, :-1]) / safe_dt.unsqueeze(-1)
+        trap = 0.5 * (label_v[:, :-1] + label_v[:, 1:])
+        gap = (implied - trap).abs().amax(dim=-1) > 1.0
+        reliable = step_ok & ~jump & ~gap
+        label_a = delta_v / safe_dt.unsqueeze(-1)
+        scale_a = torch.stack((self.s_ax, self.s_ay)).to(device=acc.device, dtype=acc.dtype).clamp(min=1e-3)
+        acc_err = _huber_axes((acc[:, :-1] - label_a) / scale_a)
+        acc_loss = _masked_mean(acc_err, reliable)
+        pred_a = (vel[:, 1:] - vel[:, :-1]) / safe_dt.unsqueeze(-1)
+        mean_a = 0.5 * (acc[:, :-1] + acc[:, 1:])
+        va = _masked_mean(_huber_axes((pred_a - mean_a) / scale_a), reliable)
+        pred_v = (direct[:, 1:] - direct[:, :-1]) / safe_dt.unsqueeze(-1)
+        mean_v = 0.5 * (vel[:, :-1] + vel[:, 1:])
+        scale_v = torch.stack((self.s_vx, self.s_vy)).to(device=vel.device, dtype=vel.dtype).clamp(min=1e-3)
+        pv = _masked_mean(_huber_axes((pred_v - mean_v) / scale_v), step_ok)
+        return acc_loss, va, pv
+
+
+def neighborhood_log_target(velocity: torch.Tensor, centers: torch.Tensor, sigma: float) -> torch.Tensor:
+    """Log soft target ``log q(k) ∝ -(c_k - v*)² / (2 σ²)``."""
+    sigma = float(sigma)
+    if sigma <= 0.0:
+        raise ValueError("neighborhood sigma must be positive")
+    delta = centers.to(dtype=velocity.dtype) - velocity.unsqueeze(-1)
+    return (-delta.square() / (2.0 * sigma * sigma)).log_softmax(dim=-1)
+
+
+@dataclass(frozen=True)
+class CoreWeights:
+    sigma_mps: float = 2.0
+    ctc: float = 0.25
+
+
+class CoreObjective(nn.Module):
+    """Neighborhood soft targets on each axis, plus auxiliary CTC.
+
+    CTC blank is class 0 and is not zero velocity. Targets are the run-length
+    collapse of the supervised bins. An infeasible alignment raises. Frames
+    past the supervised prefix, including trailing audio context, are left
+    out of both losses.
+    """
+
+    def __init__(self, weights: CoreWeights | None = None):
+        super().__init__()
+        self.weights = weights or CoreWeights()
+        centers = torch.arange(N_VEL, dtype=torch.float32) * VEL_STEP_MPS + VEL_MIN_MPS
+        self.register_buffer("centers", centers)
+        self.ctc = nn.CTCLoss(blank=0, zero_infinity=False)
+
+    def forward(
+        self,
+        pred: dict[str, torch.Tensor],
+        state: torch.Tensor,
+        super_lengths: torch.Tensor,
+    ) -> tuple[torch.Tensor, dict[str, float]]:
+        time = state.shape[1]
+        valid = torch.arange(time, device=state.device).unsqueeze(0) < super_lengths.unsqueeze(1)
+        if int(valid.sum()) < 1:
+            raise RuntimeError("neighborhood loss received no supervised frames")
+        vx = state[..., 1]
+        vy = state[..., 3]
+        bins_x = strict_bin_index(vx, valid)
+        bins_y = strict_bin_index(vy, valid)
+        lx = self._neighbor(pred["vel_x"], vx, valid)
+        ly = self._neighbor(pred["vel_y"], vy, valid)
+        ctc = self._ctc(pred["ctc_x"], bins_x, super_lengths) + self._ctc(pred["ctc_y"], bins_y, super_lengths)
+        total = lx + ly + self.weights.ctc * ctc
+        parts = {
+            "vx": float(lx.detach()),
+            "vy": float(ly.detach()),
+            "ctc": float(ctc.detach()),
+            "total": float(total.detach()),
+        }
+        return total, parts
+
+    def _neighbor(self, logits: torch.Tensor, velocity: torch.Tensor, valid: torch.Tensor) -> torch.Tensor:
+        log_q = neighborhood_log_target(velocity, self.centers, self.weights.sigma_mps)
+        nll = -(log_q.exp() * logits.log_softmax(dim=-1)).sum(dim=-1)
+        return _masked_mean(nll, valid)
+
+    def _ctc(self, logits: torch.Tensor, bins: torch.Tensor, lengths: torch.Tensor) -> torch.Tensor:
+        targets: list[torch.Tensor] = []
+        tgt_len: list[int] = []
+        for i in range(bins.shape[0]):
+            n = int(lengths[i])
+            if n < 1:
+                raise RuntimeError("CTC received an empty supervised interval")
+            collapsed = collapse_runs(bins[i, :n].detach().cpu().numpy())
+            if int(collapsed.size) < 1 or int(collapsed.size) > n:
+                raise RuntimeError(f"CTC target length {int(collapsed.size)} is not feasible for {n} frames")
+            targets.append(torch.as_tensor(collapsed + 1, dtype=torch.long))
+            tgt_len.append(int(collapsed.size))
+        target = torch.cat(targets).to(logits.device)
+        if int(target.min()) < 1:
+            raise RuntimeError("CTC target used the blank class as a velocity")
+        in_len = lengths.to(dtype=torch.long, device=logits.device)
+        tgt = torch.tensor(tgt_len, dtype=torch.long, device=logits.device)
+        logp = logits.log_softmax(dim=-1).transpose(0, 1)
+        return self.ctc(logp, target, in_len, tgt) / in_len.to(logits.dtype).mean().clamp(min=1.0)

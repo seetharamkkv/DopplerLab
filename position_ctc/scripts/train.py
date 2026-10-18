@@ -32,6 +32,7 @@ sys.path.insert(0, str(ROOT / "position_ctc" / "src"))
 
 from position_ctc.alphabet import TOKEN_TO_ID  # noqa: E402
 from position_ctc.clock import DT  # noqa: E402
+from position_ctc.paths import resolve_audio_clips  # noqa: E402
 from position_ctc.data import (  # noqa: E402
     CROP_FRAMES,
     augment_features,
@@ -247,7 +248,8 @@ def main() -> None:
     parser.add_argument(
         "--data",
         type=Path,
-        default=Path("/Users/seetharamkkv/Desktop/Seetharam/CMU/projects/doppler/datasets/audio_clips"),
+        default=None,
+        help="audio_clips directory. Default: env DOPPLER_AUDIO_CLIPS.",
     )
     parser.add_argument("--epochs", type=int, default=16)
     parser.add_argument("--pair-epochs", type=int, default=6)
@@ -267,7 +269,7 @@ def main() -> None:
     out_dir = ROOT / "position_ctc" / "outputs" / "smoke"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    clips = discover_clips(args.data)
+    clips = discover_clips(resolve_audio_clips(args.data))
     splits = split_by_vehicle(clips, seed=args.seed)
     vehicles = {
         name: sorted({clips[i].vehicle for i in idxs}) for name, idxs in splits.items()

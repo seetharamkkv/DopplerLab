@@ -31,6 +31,7 @@ from position_ctc.features import DATA_HOP, DATA_SR  # noqa: E402
 from position_ctc.kinematics import kinematic_penalty, project_path, violation_fraction  # noqa: E402
 from position_ctc.metrics import aggregate, score_path  # noqa: E402
 from position_ctc.model import FrameEncoder  # noqa: E402
+from position_ctc.paths import resolve_audio_clips  # noqa: E402
 
 DT = DATA_HOP / float(DATA_SR)
 MODES = (
@@ -358,7 +359,7 @@ def main() -> None:
     parser.add_argument(
         "--data",
         type=Path,
-        default=Path("/Users/seetharamkkv/Desktop/Seetharam/CMU/projects/doppler/datasets/audio_clips"),
+        default=None,
     )
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--patience", type=int, default=6)
@@ -377,7 +378,7 @@ def main() -> None:
 
     out_dir = ROOT / "position_ctc" / "outputs" / "ablate"
     out_dir.mkdir(parents=True, exist_ok=True)
-    clips = discover_clips(args.data)
+    clips = discover_clips(resolve_audio_clips(args.data))
     splits = split_by_vehicle(clips, seed=args.seed)
     print(
         f"clips={len(clips)} train={len(splits['train'])} val={len(splits['val'])} test={len(splits['test'])}",
