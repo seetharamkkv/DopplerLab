@@ -64,8 +64,11 @@ setup_cache/
 !position_ctc/outputs/
 !position_ctc/outputs/**
 position_ctc/outputs/**/cache/
+position_ctc/outputs/**/feature_cache/
 position_ctc/outputs/**/*.pt
+position_ctc/outputs/**/*.npy
 position_ctc/outputs/**/*.npz
+position_ctc/outputs/**/*.pkl
 position_ctc/outputs/**/records.json
 position_ctc/outputs/**/*.jsonl
 position_ctc/outputs/**/.DS_Store

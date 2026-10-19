@@ -1,0 +1,19 @@
+{
+  "root": "/Users/seetharamkkv/Desktop/Seetharam/CMU/projects/doppler/datasets/vs13_path2d_1000_varied/audio_clips",
+  "out": "outputs/ordered_velocity_full",
+  "groups_csv": null,
+  "epochs": 300,
+  "batch_size": 4,
+  "lr": 0.0003,
+  "hidden": 128,
+  "bin_width": 1.0,
+  "vmin": -60.0,
+  "vmax": 60.0,
+  "corner_weight": 3.0,
+  "workers": 0,
+  "seed": 42,
+  "resume": false,
+  "eval_every": 5,
+  "plots": 20,
+  "device": "auto"
+}

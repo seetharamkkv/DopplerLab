@@ -1,5 +1,9 @@
 checkpoints/
 *.pt
+*.pkl
 outputs/**/cache/
+outputs/**/feature_cache/
+outputs/**/*.npy
 outputs/**/*.npz
+outputs/**/*.pkl
 outputs/**/records.json

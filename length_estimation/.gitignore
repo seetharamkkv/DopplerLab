@@ -1,7 +1,0 @@
-data/vs13/
-outputs/
-checkpoints/
-__pycache__/
-*.egg-info/
-*.pyc
-.ipynb_checkpoints/
