@@ -28,7 +28,7 @@ def path_limits(item, pad_frac=0.1):
     xmin, xmax = float(pts[:, 0].min()), float(pts[:, 0].max())
     ymin, ymax = float(pts[:, 1].min()), float(pts[:, 1].max())
     pad_x = max(pad_frac * (xmax - xmin), 3.0)
-    pad_y = max(pad_frac * (ymax - ymin), 3.0)
+    pad_y = max(pad_frac * (ymax - ymin), 0.07 * (xmax - xmin), 3.0)
     return xmin - pad_x, xmax + pad_x, ymin - pad_y, ymax + pad_y
 
 
@@ -38,8 +38,8 @@ def maybe_mic(ax, xlim, ylim):
     if in_x and in_y:
         ax.scatter([0], [0], marker='x', s=70, c=MIC, linewidths=1.8, zorder=5, label='microphone')
         return
-    ax.annotate('mic at (0, 0)', xy=(0.03, 0.04), xycoords='axes fraction',
-                fontsize=8, color='#555555')
+    ax.annotate('mic at (0, 0)', xy=(0.02, 0.96), xycoords='axes fraction',
+                fontsize=8, color='#555555', va='top')
 
 
 def device_of(name):
@@ -84,6 +84,7 @@ def decode_one(name, lp, s, t, centers, penalty):
     return dict(
         sample=name, v=v, p=p, true_p=true_p, true_v=true_v, t=t, error=error,
         path_rmse_m=float(np.sqrt(np.mean(np.sum(error**2, axis=1)))),
+        ade_m=float(np.mean(np.linalg.norm(error, axis=1))),
         vx_mae=float(np.mean(np.abs(v[:, 0] - true_v[:, 0]))),
         vy_mae=float(np.mean(np.abs(v[:, 1] - true_v[:, 1]))),
         endpoint_error_m=float(np.linalg.norm(error[-1])),
@@ -200,7 +201,7 @@ def write_figures(decoded, dest, penalty, best_epoch):
         gridspec_kw={'width_ratios': [1.15, 1], 'height_ratios': [1.15, 1]},
     )
     add_path(axes[0, 0], best, colorbar=True, time_color=True)
-    axes[0, 0].legend(loc='upper right', fontsize=8)
+    axes[0, 0].legend(loc='center left', fontsize=8, bbox_to_anchor=(1.18, 0.5))
     axes[0, 1].plot(best['t'], best['error'][:, 0], color='#3d5a80', lw=1.6, label='x error')
     axes[0, 1].plot(best['t'], best['error'][:, 1], color='#e07a5f', lw=1.6, label='y error')
     axes[0, 1].axhline(0, color='#bbbbbb', lw=0.8)
@@ -221,19 +222,93 @@ def write_figures(decoded, dest, penalty, best_epoch):
 
     turn = max(chosen, key=lambda d: d['heading_change'])
     turn_path = dest / 'detail_turning_path.png'
-    fig, ax = plt.subplots(figsize=(7.4, 6.6))
+    fig, ax = plt.subplots(figsize=(8.4, 5.4))
     add_path(ax, turn, colorbar=True, time_color=True)
-    ax.legend(loc='upper right')
+    ax.legend(loc='upper left', fontsize=8)
     fig.suptitle('Turning clip  ·  predicted path colored by time', fontsize=13)
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0, 1, 0.95))
     fig.savefig(turn_path)
     plt.close(fig)
-    return [gallery, detail, turn_path], chosen, best
+
+    sample844 = next(d for d in decoded if '0000844' in Path(d['sample']).name)
+    extra = write_sample_detail(sample844, dest)
+    return [gallery, detail, turn_path, *extra], chosen, best
+
+
+def write_sample_detail(item, dest):
+    """Standalone path + time-series figures for one clip, matching the gallery path style."""
+    true_p, pred_p, t = item['true_p'], item['p'], item['t']
+    path_png = dest / f"{Path(item['sample']).name}_path.png"
+    fig, ax = plt.subplots(figsize=(7.6, 6.4))
+    ax.plot(true_p[:, 0], true_p[:, 1], color=TRUE, lw=2.5, solid_capstyle='round',
+            label='labeled path', zorder=2)
+    segs = np.stack([pred_p[:-1], pred_p[1:]], axis=1)
+    lc = LineCollection(segs, cmap='plasma', linewidths=2.3, zorder=3, capstyle='round')
+    lc.set_array(t[:-1])
+    ax.add_collection(lc)
+    ax.scatter([0], [0], marker='x', s=90, c=MIC, linewidths=2.0, zorder=5, label='microphone')
+    ax.scatter(true_p[0, 0], true_p[0, 1], s=42, c=START, zorder=6, edgecolors='white',
+               linewidths=0.7, label='start')
+    ax.scatter(pred_p[-1, 0], pred_p[-1, 1], s=34, marker='s', c=PRED, zorder=6,
+               edgecolors='white', linewidths=0.6, label='predicted end')
+    pts = np.vstack([true_p, pred_p, np.array([[0.0, 0.0]])])
+    pad = 6.0
+    ax.set_xlim(pts[:, 0].min() - pad, pts[:, 0].max() + pad)
+    ax.set_ylim(pts[:, 1].min() - pad, pts[:, 1].max() + pad)
+    ax.set_aspect('equal', adjustable='box')
+    ax.grid(True, alpha=0.9)
+    ax.set_xlabel('x (m)')
+    ax.set_ylabel('y (m)')
+    ax.set_title(
+        f"{Path(item['sample']).name}\n"
+        f"path RMSE {item['path_rmse_m']:.1f} m  ·  end {item['endpoint_error_m']:.1f} m"
+    )
+    ax.legend(loc='upper right')
+    cbar = plt.colorbar(lc, ax=ax, fraction=0.046, pad=0.04)
+    cbar.set_label('observer time (s)')
+    fig.tight_layout()
+    fig.savefig(path_png)
+    plt.close(fig)
+
+    series_png = dest / f"{Path(item['sample']).name}_xy_vxvy.png"
+    fig, axes = plt.subplots(1, 2, figsize=(11.2, 4.2), sharex=True)
+    series = (
+        (axes[0], true_p[:, 0], pred_p[:, 0], 'x (m)'),
+        (axes[1], true_p[:, 1], pred_p[:, 1], 'y (m)'),
+    )
+    for ax, truth, pred, ylab in series:
+        ax.plot(t, truth, color=TRUE, lw=2.1, label='ground truth')
+        ax.plot(t, pred, color=PRED, lw=1.8, label='predicted')
+        ax.set_ylabel(ylab)
+        ax.set_xlabel('observer time (s)')
+        ax.grid(True)
+        ax.legend(loc='best')
+    fig.suptitle(f"{Path(item['sample']).name}  ·  position vs time", fontsize=13)
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
+    fig.savefig(series_png)
+    plt.close(fig)
+    return [path_png, series_png]
 
 
 def mean_metrics(decoded):
+    ades = np.array([
+        d.get('ade_m', float(np.mean(np.linalg.norm(d['error'], axis=1))))
+        for d in decoded
+    ])
+    fdes = np.array([d['endpoint_error_m'] for d in decoded])
     keys = ('path_rmse_m', 'vx_mae', 'vy_mae', 'endpoint_error_m')
-    return {k: float(np.mean([d[k] for d in decoded])) for k in keys}
+    metrics = {k: float(np.mean([d[k] for d in decoded])) for k in keys}
+    metrics.update(
+        n_clips=len(decoded),
+        ade_m=float(ades.mean()),
+        ade_median_m=float(np.median(ades)),
+        fde_m=float(fdes.mean()),
+        fde_median_m=float(np.median(fdes)),
+        headline=(
+            f"Test ADE: {ades.mean():.2f} m across {len(decoded)} held-out clips"
+        ),
+    )
+    return metrics
 
 
 def main():
@@ -247,10 +322,14 @@ def main():
     dest = args.out / 'inference'
     dest.mkdir(parents=True, exist_ok=True)
     cache_path = dest / 'test_decoded.pkl'
+    decoder_path = dest / 'decoder.json'
+    val_scores = None
     if args.figures_only:
         payload = pickle.loads(cache_path.read_bytes())
         test, chosen, best_epoch = payload['test'], payload['penalty'], payload['best_epoch']
         test_metrics = mean_metrics(test)
+        if decoder_path.exists():
+            val_scores = json.loads(decoder_path.read_text()).get('validation')
     else:
         device = device_of(args.device)
         ck, centers, loaders, model = load_run(args.out, args.root, device)
@@ -262,12 +341,13 @@ def main():
         test = decode_all(tr.predict(model, loaders['test'], device), centers, chosen)
         test_metrics = mean_metrics(test)
         best_epoch = int(ck['epoch'])
-        (dest / 'decoder.json').write_text(json.dumps(
-            dict(penalty=chosen, validation=val_scores, test=test_metrics, best_epoch=best_epoch),
-            indent=2,
-        ))
         cache_path.write_bytes(pickle.dumps(dict(test=test, penalty=chosen, best_epoch=best_epoch)))
+    decoder_path.write_text(json.dumps(
+        dict(penalty=chosen, validation=val_scores, test=test_metrics, best_epoch=best_epoch),
+        indent=2,
+    ))
     paths, clips, best = write_figures(test, dest, chosen, best_epoch)
+    print(test_metrics['headline'], flush=True)
     print(json.dumps(dict(
         penalty=chosen,
         test=test_metrics,
