@@ -55,7 +55,13 @@
     "path_rmse_m": 9.14212831865059,
     "vx_mae": 0.9471573802580436,
     "vy_mae": 1.935854517718156,
-    "endpoint_error_m": 14.249891267184424
+    "endpoint_error_m": 14.249891267184424,
+    "n_clips": 150,
+    "ade_m": 8.07943912557896,
+    "ade_median_m": 6.021466564199773,
+    "fde_m": 14.249891267184424,
+    "fde_median_m": 10.15604328249547,
+    "headline": "Test ADE: 8.08 m across 150 held-out clips"
   },
   "best_epoch": 150
 }

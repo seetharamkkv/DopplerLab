@@ -71,6 +71,9 @@ position_ctc/outputs/**/*.npz
 position_ctc/outputs/**/*.pkl
 position_ctc/outputs/**/records.json
 position_ctc/outputs/**/*.jsonl
+!position_ctc/outputs/**/history.jsonl
+position_ctc/outputs/**/test/*.png
+position_ctc/outputs/**/validation/*.png
 position_ctc/outputs/**/.DS_Store
 !ctc_exp/outputs/
 !ctc_exp/outputs/**

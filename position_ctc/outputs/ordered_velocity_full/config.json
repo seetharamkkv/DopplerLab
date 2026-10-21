@@ -12,7 +12,7 @@
   "corner_weight": 3.0,
   "workers": 0,
   "seed": 42,
-  "resume": false,
+  "resume": true,
   "eval_every": 5,
   "plots": 20,
   "device": "auto"
