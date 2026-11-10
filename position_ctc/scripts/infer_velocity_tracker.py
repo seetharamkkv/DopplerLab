@@ -230,9 +230,11 @@ def write_figures(decoded, dest, penalty, best_epoch):
     fig.savefig(turn_path)
     plt.close(fig)
 
-    sample844 = next(d for d in decoded if '0000844' in Path(d['sample']).name)
-    extra = write_sample_detail(sample844, dest)
-    return [gallery, detail, turn_path, *extra], chosen, best
+    paths = [gallery, detail, turn_path]
+    sample844 = next((d for d in decoded if '0000844' in Path(d['sample']).name), None)
+    if sample844 is not None:
+        paths.extend(write_sample_detail(sample844, dest))
+    return paths, chosen, best
 
 
 def write_sample_detail(item, dest):

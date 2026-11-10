@@ -1,0 +1,43 @@
+{
+  "best_epoch": 75,
+  "checkpoint": "position_ctc/outputs/ordered_velocity_7500/best.pt",
+  "split": "test",
+  "by_penalty": {
+    "0.0": {
+      "path_rmse_m": 6.814805303651256,
+      "vx_mae": 0.7256232581155168,
+      "vy_mae": 1.5392108439803123,
+      "endpoint_error_m": 10.331353297185169,
+      "ade_m": 6.030279051144441,
+      "n_clips": 1125,
+      "ade_median_m": 4.737549094713959,
+      "fde_median_m": 7.834260763193706,
+      "selection": 1.1324170510479146,
+      "penalty": 0.0
+    },
+    "3.0": {
+      "path_rmse_m": 6.853726589777353,
+      "vx_mae": 0.7232346548255947,
+      "vy_mae": 1.5279504088030922,
+      "endpoint_error_m": 10.417358070407492,
+      "ade_m": 6.0615502810322655,
+      "n_clips": 1125,
+      "ade_median_m": 4.783113335902302,
+      "fde_median_m": 7.87805209177422,
+      "selection": 1.1255925318143434,
+      "penalty": 3.0
+    }
+  },
+  "chosen": {
+    "path_rmse_m": 6.814805303651256,
+    "vx_mae": 0.7256232581155168,
+    "vy_mae": 1.5392108439803123,
+    "endpoint_error_m": 10.331353297185169,
+    "ade_m": 6.030279051144441,
+    "n_clips": 1125,
+    "ade_median_m": 4.737549094713959,
+    "fde_median_m": 7.834260763193706,
+    "selection": 1.1324170510479146,
+    "penalty": 0.0
+  }
+}

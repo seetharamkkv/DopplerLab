@@ -1,0 +1,122 @@
+{
+  "best_epoch": 75,
+  "penalty": 0.0,
+  "n_images": 23,
+  "clips": [
+    {
+      "role": "best",
+      "sample": "sample_0001126",
+      "path_rmse_m": 0.38579179683586173,
+      "ade_m": 0.34903815880990835,
+      "endpoint_error_m": 0.2805280020645854,
+      "vx_mae": 0.16200688481330872,
+      "vy_mae": 0.5540326833724976
+    },
+    {
+      "role": "best2",
+      "sample": "sample_0000452",
+      "path_rmse_m": 0.45981648580039747,
+      "ade_m": 0.37742229713602543,
+      "endpoint_error_m": 1.0659511039835534,
+      "vx_mae": 0.1837068647146225,
+      "vy_mae": 0.3516590893268585
+    },
+    {
+      "role": "best3",
+      "sample": "sample_0005344",
+      "path_rmse_m": 0.5692892018020116,
+      "ade_m": 0.48880452271520325,
+      "endpoint_error_m": 1.1263004810703192,
+      "vx_mae": 0.36268889904022217,
+      "vy_mae": 0.39819207787513733
+    },
+    {
+      "role": "p25",
+      "sample": "sample_0006560",
+      "path_rmse_m": 3.4830051744095076,
+      "ade_m": 2.904269446060702,
+      "endpoint_error_m": 4.081015772137294,
+      "vx_mae": 0.4690070152282715,
+      "vy_mae": 2.8071975708007812
+    },
+    {
+      "role": "median",
+      "sample": "sample_0006007",
+      "path_rmse_m": 5.4606623471041305,
+      "ade_m": 3.868976054212187,
+      "endpoint_error_m": 14.806917329266298,
+      "vx_mae": 0.6862618923187256,
+      "vy_mae": 1.441528081893921
+    },
+    {
+      "role": "p75",
+      "sample": "sample_0001534",
+      "path_rmse_m": 8.541574393910208,
+      "ade_m": 6.275011943434693,
+      "endpoint_error_m": 22.296577588561956,
+      "vx_mae": 1.185374140739441,
+      "vy_mae": 2.5461232662200928
+    },
+    {
+      "role": "poor1",
+      "sample": "sample_0004401",
+      "path_rmse_m": 32.795231192127694,
+      "ade_m": 27.338948693006262,
+      "endpoint_error_m": 57.34355772684617,
+      "vx_mae": 3.4987778663635254,
+      "vy_mae": 4.347025394439697
+    },
+    {
+      "role": "poor2",
+      "sample": "sample_0002144",
+      "path_rmse_m": 35.64881606121521,
+      "ade_m": 33.585771507227165,
+      "endpoint_error_m": 33.71672687543155,
+      "vx_mae": 2.5317466259002686,
+      "vy_mae": 4.737390995025635
+    },
+    {
+      "role": "worst",
+      "sample": "sample_0006589",
+      "path_rmse_m": 43.234004407387275,
+      "ade_m": 40.022177605699916,
+      "endpoint_error_m": 65.22996098225885,
+      "vx_mae": 2.288163661956787,
+      "vy_mae": 5.742138385772705
+    },
+    {
+      "role": "turning",
+      "sample": "sample_0006479",
+      "path_rmse_m": 2.0152397583318304,
+      "ade_m": 1.7879255812730959,
+      "endpoint_error_m": 1.740982882890216,
+      "vx_mae": 1.3901338577270508,
+      "vy_mae": 1.4877256155014038
+    }
+  ],
+  "files": [
+    "position_ctc/outputs/ordered_velocity_7500/inference/gallery_paths.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/detail_best_path.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/detail_turning_path.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/best_sample_0001126_path.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/best_sample_0001126_xy_vxvy.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/best2_sample_0000452_path.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/best2_sample_0000452_xy_vxvy.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/best3_sample_0005344_path.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/best3_sample_0005344_xy_vxvy.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/p25_sample_0006560_path.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/p25_sample_0006560_xy_vxvy.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/median_sample_0006007_path.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/median_sample_0006007_xy_vxvy.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/p75_sample_0001534_path.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/p75_sample_0001534_xy_vxvy.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/poor1_sample_0004401_path.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/poor1_sample_0004401_xy_vxvy.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/poor2_sample_0002144_path.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/poor2_sample_0002144_xy_vxvy.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/worst_sample_0006589_path.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/worst_sample_0006589_xy_vxvy.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/turning_sample_0006479_path.png",
+    "position_ctc/outputs/ordered_velocity_7500/inference/turning_sample_0006479_xy_vxvy.png"
+  ]
+}

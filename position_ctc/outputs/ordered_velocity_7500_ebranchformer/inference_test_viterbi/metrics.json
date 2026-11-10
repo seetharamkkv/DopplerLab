@@ -1,0 +1,18 @@
+{
+  "clips": 1125,
+  "ade_m": 6.212827716188559,
+  "fde_m": 10.52304960223758,
+  "orbit_ade_m": 5.7167000067607665,
+  "orbit_rms_m": 6.105293733394375,
+  "range_mae_m": 3.3832435514908474,
+  "cpa_distance_error_m": 5.463955176890637,
+  "vx_mae_mps": 0.6856813574126639,
+  "vy_mae_mps": 1.654393026856874,
+  "turn_ade_m": 8.48736111366096,
+  "moving_frames": 924360,
+  "turn_frames": 14013,
+  "checkpoint_epoch": 95,
+  "decode": "viterbi",
+  "viterbi_penalty": 0.0,
+  "max_jump": 8
+}

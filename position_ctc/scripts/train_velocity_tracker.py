@@ -2,9 +2,13 @@
 """Offline, full-frame ordered-bin vx/vy tracker. Python 3.10+.
 Install: pip install torch numpy scipy matplotlib
 Run: python train_velocity_tracker.py --root /path/to/audio_clips --out outputs/ordered_velocity
+Continue from a saved network on a new dataset (fresh splits/optimizer):
+  python train_velocity_tracker.py --root /path/to/new/audio_clips \\
+    --out outputs/ordered_velocity_new --init-checkpoint old/best.pt --patience 50
 Optional strict vehicle holdout: --groups-csv groups.csv (columns: sample,vehicle).
 Default split is random CLIP holdout, NOT vehicle holdout. True p0 is used for evaluation.
-No early stopping. Labels: metadata/canonical_state_frames.npy = x,vx,y,vy.
+--resume continues the SAME run from last.pt. --init-checkpoint loads weights only.
+Labels: metadata/canonical_state_frames.npy = x,vx,y,vy.
 """
 import argparse
 import csv
@@ -264,12 +268,20 @@ def main():
     p.add_argument('--workers', type=int, default=0)
     p.add_argument('--seed', type=int, default=42)
     p.add_argument('--resume', action='store_true')
+    p.add_argument('--init-checkpoint', type=Path,
+                   help='Load model weights from best.pt (or compatible). Fresh optimizer/split/norm.')
+    p.add_argument('--patience', type=int, default=0,
+                   help='Stop after this many epochs without a better val selection score. 0 disables.')
     p.add_argument('--eval-every', type=int, default=5)
     p.add_argument('--plots', type=int, default=20)
     p.add_argument('--device', default='auto')
     args = p.parse_args()
     if args.bin_width <= 0 or args.vmax <= args.vmin or args.epochs < 1 or args.eval_every < 1:
         p.error('Invalid bin range, epochs, or eval interval')
+    if args.patience < 0:
+        p.error('patience cannot be negative')
+    if args.resume and args.init_checkpoint:
+        p.error('Use --resume for the same run, or --init-checkpoint for a new dataset, not both')
     if abs((args.vmax-args.vmin)/args.bin_width-round((args.vmax-args.vmin)/args.bin_width)) > 1e-5:
         p.error('Bin range must be divisible by bin width')
     args.out.mkdir(parents=True, exist_ok=True)
@@ -357,14 +369,22 @@ def main():
     model = Tracker(len(centers_np), args.hidden).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=args.lr*.05)
-    best = float('inf'); start = 1
+    best = float('inf'); start = 1; stale = 0
     if args.resume:
         ck = torch.load(args.out/'last.pt', map_location=device, weights_only=False)
         model.load_state_dict(ck['model']); optimizer.load_state_dict(ck['optimizer'])
         scheduler.load_state_dict(ck['scheduler']); start=ck['epoch']+1; best=ck['best']
+        stale = int(ck.get('stale', 0))
         random.setstate(ck['python_rng']); np.random.set_state(ck['numpy_rng'])
         torch.set_rng_state(ck['torch_rng'].cpu())
         if device=='cuda' and ck.get('cuda_rng') is not None: torch.cuda.set_rng_state_all([x.cpu() for x in ck['cuda_rng']])
+    elif args.init_checkpoint:
+        ck = torch.load(args.init_checkpoint, map_location=device, weights_only=False)
+        model.load_state_dict(ck['model'])
+        prior = ck.get('centers')
+        if prior is not None and not np.allclose(np.asarray(prior), centers_np):
+            raise ValueError('init-checkpoint bin centers do not match --vmin/--vmax/--bin-width')
+        print(f"Initialized from {args.init_checkpoint} (source epoch {ck.get('epoch')})", flush=True)
     (args.out/'config.json').write_text(json.dumps(config, indent=2))
     for epoch in range(start, args.epochs+1):
         model.train(); total=0.; batches=0
@@ -384,15 +404,23 @@ def main():
             # Select network by velocity error; choose decoder separately afterward.
             selection = .5*(m['vx_mae']+m['vy_mae'])
             if selection < best:
-                best=selection
+                best=selection; stale=0
                 torch.save(dict(model=model.state_dict(), epoch=epoch, centers=centers_np,
                                 config=config), args.out/'best.pt')
+            else:
+                stale += args.eval_every
+            row['selection'] = selection
+            row['best'] = best
+            row['stale'] = stale
         torch.save(dict(model=model.state_dict(), optimizer=optimizer.state_dict(),
-            scheduler=scheduler.state_dict(), epoch=epoch, best=best,
+            scheduler=scheduler.state_dict(), epoch=epoch, best=best, stale=stale,
             python_rng=random.getstate(), numpy_rng=np.random.get_state(), torch_rng=torch.get_rng_state(),
             cuda_rng=torch.cuda.get_rng_state_all() if device=='cuda' else None), args.out/'last.pt')
         with (args.out/'history.jsonl').open('a') as f: f.write(json.dumps(row)+'\n')
         print(json.dumps(row), flush=True)
+        if args.patience and stale >= args.patience:
+            print(f'Early stopping: no val improvement for {stale} epochs.', flush=True)
+            break
     ck = torch.load(args.out/'best.pt', map_location=device, weights_only=False)
     model.load_state_dict(ck['model'])
     validation = predict(model, loaders['val'], device)
