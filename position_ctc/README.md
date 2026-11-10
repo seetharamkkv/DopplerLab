@@ -12,6 +12,8 @@ Audio is not in this repository. Point the scripts at a local clip directory.
 |--------|------:|----------------------|------------|
 | Free-path 2D | 1300 (13 vehicles × 100) | `DOPPLER_AUDIO_CLIPS` | Constant-speed polylines. Vehicle holdout seed 0: 900 / 200 / 200. Used by the path ablations and MotionNet runs. |
 | Path2D 10 speed bins | 130 | `DOPPLER_PATH2D_CLIPS` | Later DopplerSim export. Used by the oracle-range decoder and the continuous velocity tracker. |
+| `vs13_path2d_7500_varied` | 7500 | local `datasets/` (not in git) | Constant-speed free paths, 20–90 km/h. Ordered-velocity 7500 runs. Split seed 42: train 5250 / val 1125 / test 1125. |
+| `vs13_dopplersim_2d_5000` | 5000 | local `datasets/` (not in git) | Accelerating free paths, five families of 1000. Preview only is tracked. |
 
 Each clip is a `sample_*/` folder with a WAV plus `metadata/canonical_state_frames.npy` (`x, vx, y, vy`) and usually `metadata/frame_times.npy`. Canonical labels already place closest approach on the positive y-axis. Stationary pads (`hypot(vx, vy) ≤ 0.5`) are dropped unless a script says otherwise.
 
@@ -152,6 +154,55 @@ position_ctc/.venv/bin/python position_ctc/scripts/train_velocity.py \
 ```
 
 The full split starts only if overfit path RMSE < 2 m, vx MAE < 1 m/s, and vy MAE < 1.5 m/s.
+
+### 5. Ordered velocity bins on the 7500-clip Path2D set
+
+CNN–GRU and E-Branchformer each emit ordered `vx`, `vy` bins (1 m/s from −60 to +60). Position is the trapezoid integral from the labeled first position. Both runs use the same seed-42 split of `vs13_path2d_7500_varied`: 5250 / 1125 / 1125. Weights, STFT caches, and the audio stay local. Metrics and the figures below are the GitHub copy.
+
+**1000-clip CNN–GRU** (`outputs/ordered_velocity_full`, test n = 150, epoch 150, Viterbi penalty 3.0). Write-up: [`outputs/ordered_velocity_full/RESULTS.md`](outputs/ordered_velocity_full/RESULTS.md).
+
+| ADE | FDE | Path RMSE | vx MAE | vy MAE |
+|----:|----:|----------:|-------:|-------:|
+| 8.08 m | 14.25 m | 9.14 m | 0.95 m/s | 1.94 m/s |
+
+Median ADE 6.02 m, median FDE 10.16 m. Gallery: `outputs/ordered_velocity_full/inference/gallery_paths.png`.
+
+**7500-clip CNN–GRU** (`outputs/ordered_velocity_7500`, test n = 1125, epoch 75, penalty 0). Record: [`outputs/ordered_velocity_7500/inference/test_metrics.json`](outputs/ordered_velocity_7500/inference/test_metrics.json).
+
+| ADE | Median ADE | FDE | Median FDE | Path RMSE | vx MAE | vy MAE |
+|----:|-----------:|----:|-----------:|----------:|-------:|-------:|
+| 6.03 m | 4.74 m | 10.33 m | 7.83 m | 6.81 m | 0.73 m/s | 1.54 m/s |
+
+Penalty 3.0 is almost the same (ADE 6.06 m). Representative clips, best to worst:
+
+| Role | Clip | Path RMSE | ADE | Endpoint |
+|------|------|----------:|----:|---------:|
+| Best | `sample_0001126` | 0.39 m | 0.35 m | 0.28 m |
+| Median | `sample_0006007` | 5.46 m | 3.87 m | 14.81 m |
+| Turning | `sample_0006479` | 2.02 m | 1.79 m | 1.74 m |
+| Worst | `sample_0006589` | 43.23 m | 40.02 m | 65.23 m |
+
+Plots: `outputs/ordered_velocity_7500/inference/` (`gallery_paths.png`, `detail_best_path.png`, `detail_turning_path.png`, and the per-clip pairs named in `figures_manifest.json`).
+
+**7500-clip E-Branchformer** (`outputs/ordered_velocity_7500_ebranchformer`, 6 layers, 4 heads, kernel 15, hidden 128, epoch 95). Same split. Record: [`outputs/ordered_velocity_7500_ebranchformer/test_metrics.json`](outputs/ordered_velocity_7500_ebranchformer/test_metrics.json). Viterbi penalty 0, max jump 8, matches these numbers. Oracle integration of the labels is 0.005 m ADE, so the integrator is not the error.
+
+| ADE | FDE | Orbit ADE | Orbit RMS | Range MAE | CPA error | vx MAE | vy MAE | Turn ADE |
+|----:|----:|----------:|----------:|----------:|----------:|-------:|-------:|---------:|
+| 6.21 m | 10.52 m | 5.72 m | 6.11 m | 3.38 m | 5.46 m | 0.69 m/s | 1.65 m/s | 8.49 m |
+
+Best validation ADE was 6.12 m. Twenty test drawings are in `outputs/ordered_velocity_7500_ebranchformer/inference_test_viterbi/` (for example `sample_0000002.png`). Per-clip scores: `inference_test_viterbi/per_clip.csv`.
+
+vx stays near 0.7 m/s MAE on both 7500 models. vy stays near 1.6 m/s, and the worst paths are tens of metres. The E-Branchformer does not beat the CNN–GRU on ADE (6.21 m versus 6.03 m).
+
+### 6. Accelerating free-path set (generated, not trained)
+
+`datasets/vs13_dopplersim_2d_5000` is a 5000-clip DopplerSim run (seed 20261110, recipe `waypoint-walk-2d-v3`). Each clip is 10 s at 44.1 kHz. Speed stays in 3–36 m/s and acceleration magnitude stays at or below 5 m/s². Families are balanced: 1000 cruise, 1000 accelerate, 1000 decelerate, 1000 brake, 1000 mixed. The axis-balance check passed on the first attempt (worst normalized gap 0.0879, limit 0.16). Three WAVs were regenerated and matched.
+
+The audio is about 86 GB and is not in git. The tracked preview is:
+
+- [`outputs/dopplersim_2d_5000/summary.json`](outputs/dopplersim_2d_5000/summary.json)
+- [`outputs/dopplersim_2d_5000/trajectory_preview.png`](outputs/dopplersim_2d_5000/trajectory_preview.png)
+- [`outputs/dopplersim_2d_5000/axis_balance.png`](outputs/dopplersim_2d_5000/axis_balance.png)
 
 ## Identifiability
 

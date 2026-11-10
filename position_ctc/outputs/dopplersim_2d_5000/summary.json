@@ -1,0 +1,37 @@
+{
+  "dataset": "vs13_dopplersim_2d_5000",
+  "local_path": "datasets/vs13_dopplersim_2d_5000",
+  "recipe": "waypoint-walk-2d-v3",
+  "seed": 20261110,
+  "count": 5000,
+  "clip_seconds": 10,
+  "sample_rate_hz": 44100,
+  "sources": "DopplerSim/static/inputs (12 VS13 vehicle WAVs)",
+  "families": {
+    "cruise": 1000,
+    "accelerate": 1000,
+    "decelerate": 1000,
+    "brake": 1000,
+    "mixed": 1000
+  },
+  "bounds": {
+    "min_speed_mps": 3.0,
+    "max_speed_mps": 36.0,
+    "max_accel_mps2": 5.0,
+    "lateral_m": [5, 28],
+    "cpa_s": [2, 8]
+  },
+  "validation": {
+    "passed": true,
+    "worst_normalized_axis_gap": 0.0879,
+    "tolerance": 0.16,
+    "replayed_wavs": 3,
+    "selected_attempt": 0
+  },
+  "on_github": [
+    "trajectory_preview.png",
+    "axis_balance.png",
+    "summary.json"
+  ],
+  "local_only": "audio_clips/ (about 86 GB), manifest.jsonl, weights and feature caches"
+}

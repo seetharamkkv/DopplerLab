@@ -75,6 +75,10 @@ Headline numbers from this archive:
 | GT velocity trapezoid audit | 0.041 m RMSE vs labeled `x, y` (130 clips) |
 | Continuous velocity 4-clip overfit | path 11.0 m, vx 3.8 m/s, vy 7.6 m/s after 200 epochs; holdout not started |
 | Clip-level speed classifier (`ctc_exp` unconstrained_velcond) | 91.9% speed-bin accuracy; this is not CTC |
+| Ordered velocity, 1000 Path2D clips | Test ADE 8.08 m (150 clips). vx MAE 0.95 m/s, vy MAE 1.94 m/s. Epoch 150. |
+| Ordered velocity, CNN–GRU, 7500 Path2D clips | Test ADE 6.03 m, path RMSE 6.81 m, vx MAE 0.73 m/s, vy MAE 1.54 m/s (1125 clips, epoch 75) |
+| Ordered velocity, E-Branchformer, same 7500 split | Test ADE 6.21 m, orbit RMS 6.11 m, vx MAE 0.69 m/s, vy MAE 1.65 m/s (1125 clips, epoch 95). Viterbi penalty 0 matches this |
+| Accelerating free-path set `vs13_dopplersim_2d_5000` | 5000 clips, 1000 each of cruise / accelerate / decelerate / brake / mixed. Axis-balance gap 0.0879. Audio stays local (~86 GB); preview plots are in git |
 
 The other tracks keep the same kind of file:
 
@@ -88,6 +92,10 @@ The other tracks keep the same kind of file:
 | Engine-acoustics synthesizer | [`engine_acoustics/replications.json`](engine_acoustics/replications.json) |
 | Continuous velocity tracker | [`position_ctc/outputs/velocity_track/report.md`](position_ctc/outputs/velocity_track/report.md) |
 | Oracle range decoder | [`position_ctc/outputs/oracle_range/report.md`](position_ctc/outputs/oracle_range/report.md) |
+| Ordered velocity, 1000-clip run | [`position_ctc/outputs/ordered_velocity_full/RESULTS.md`](position_ctc/outputs/ordered_velocity_full/RESULTS.md) |
+| Ordered velocity, 7500 CNN–GRU | [`position_ctc/outputs/ordered_velocity_7500/inference/test_metrics.json`](position_ctc/outputs/ordered_velocity_7500/inference/test_metrics.json) |
+| Ordered velocity, 7500 E-Branchformer | [`position_ctc/outputs/ordered_velocity_7500_ebranchformer/test_metrics.json`](position_ctc/outputs/ordered_velocity_7500_ebranchformer/test_metrics.json) |
+| Accelerating 2D dataset preview | [`position_ctc/outputs/dopplersim_2d_5000/summary.json`](position_ctc/outputs/dopplersim_2d_5000/summary.json) |
 
 `data_loading/` builds splits and does not train a model, so it has no replication record. The 91.9% speed-bin figure is in the `ctc_exp` record. It is the clip-level speed classifier, not the CTC decode and not the position ablation.
 
